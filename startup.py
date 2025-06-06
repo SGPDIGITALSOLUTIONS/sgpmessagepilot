@@ -1,5 +1,5 @@
 import os
-from app import create_app
+from app.app import app
 
 # Create the Flask application instance
 app = create_app()
