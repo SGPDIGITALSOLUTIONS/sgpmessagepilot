@@ -1,0 +1,1919 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="referrer" content="no-referrer">
+    <title>SGP MessagePilot - Bulk WhatsApp Messaging Tool</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        .drag-area {
+            border: 2px dashed #4CAF50;
+            transition: all 0.3s ease;
+        }
+        .drag-area.active {
+            border-color: #2196F3;
+            background-color: rgba(33, 150, 243, 0.1);
+        }
+        .drag-area.error {
+            border-color: #DC2626;
+            background-color: rgba(220, 38, 38, 0.1);
+        }
+        .merge-field {
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .merge-field:hover {
+            background-color: #E5E7EB;
+        }
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .sgp-green {
+            background-color: #123524;
+        }
+        .sgp-green-text {
+            color: #123524;
+        }
+        .sgp-green-hover:hover {
+            background-color: #1a4d35;
+        }
+        .sgp-green-border {
+            border-color: #123524;
+        }
+        .contact-sent {
+            background-color: #f0fdf4 !important;
+            border: 1px solid #16a34a !important;
+            opacity: 0.8;
+        }
+        .sent-checkbox:checked + label {
+            color: #16a34a;
+            font-weight: 600;
+        }
+        
+        /* Rate Limit Status Styles */
+        .rate-limit-display {
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            border: 1px solid;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .rate-limit-display.normal {
+            background-color: #f0fdf4;
+            border-color: #16a34a;
+            color: #15803d;
+        }
+        
+        .rate-limit-display.caution {
+            background-color: #fffbeb;
+            border-color: #f59e0b;
+            color: #d97706;
+        }
+        
+        .rate-limit-display.warning {
+            background-color: #fef2f2;
+            border-color: #dc2626;
+            color: #dc2626;
+        }
+        
+        /* WhatsApp Jail Recovery Notice */
+        .whatsapp-jail-notice {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            border: 2px solid #ef4444;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .whatsapp-jail-notice::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #ef4444, #dc2626, #b91c1c);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <header class="text-center mb-12">
+            <h1 class="text-4xl font-bold sgp-green-text mb-2">SGP MessagePilot</h1>
+            <p class="text-gray-600 mb-3">Efficient Bulk WhatsApp Messaging Solution</p>
+            
+            <!-- Compliance Badges -->
+            <div class="flex justify-center space-x-4 mb-2">
+                <div class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium flex items-center">
+                    <svg class="h-4 w-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                    </svg>
+                    GDPR Compliant
+                </div>
+                <div class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium flex items-center">
+                    <svg class="h-4 w-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"></path>
+                    </svg>
+                    Privacy-First
+                </div>
+                <div class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm font-medium flex items-center">
+                    <svg class="h-4 w-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                    </svg>
+                    Enterprise Grade
+                </div>
+            </div>
+            
+            <div class="text-center">
+                <a href="/privacy" class="text-sm text-gray-500 hover:text-gray-700 underline">
+                    View Privacy Policy & Compliance Details
+                </a>
+            </div>
+        </header>
+
+
+
+        <div class="max-w-6xl mx-auto">
+            <!-- Navigation -->
+            <div class="mb-6">
+                <a href="/" class="inline-flex items-center text-gray-600 hover:text-gray-800 transition duration-200">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                    </svg>
+                    Back to Platform Selection
+                </a>
+            </div>
+            
+            <h1 class="text-4xl font-bold text-center text-gray-800 mb-8">WhatsApp Bulk Messaging Tool</h1>
+            
+            <!-- Upload Section -->
+            <div id="upload-section" class="bg-white rounded-lg shadow-lg p-6 mb-8">
+                <div class="drag-area p-8 rounded-lg text-center cursor-pointer" id="drop-zone">
+                    <div id="upload-content" class="space-y-4">
+                        <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                            <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        <div class="text-gray-600">
+                            <p class="font-medium">Drag and drop your file here, or</p>
+                            <input type="file" id="file-input" class="hidden" accept=".xlsx,.xls,.csv">
+                            <button class="text-blue-500 hover:text-blue-600 font-medium" onclick="document.getElementById('file-input').click()">browse</button>
+                        </div>
+                        <p class="text-sm text-gray-500">Supported formats: XLSX, XLS, CSV</p>
+                    </div>
+                    <div id="upload-loading" class="hidden">
+                        <div class="loading-spinner"></div>
+                        <p class="text-gray-600 mt-4">Processing your file...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Message Customization and Contact Selection -->
+            <div id="customization-section" class="hidden space-y-8">
+                <!-- Contact List -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-semibold text-gray-800">Contacts</h2>
+                        <div class="space-x-4">
+                            <button onclick="selectAll(true)" class="text-blue-500 hover:text-blue-600">Select All</button>
+                            <button onclick="selectAll(false)" class="text-blue-500 hover:text-blue-600">Deselect All</button>
+                        </div>
+                    </div>
+                    <div id="contacts-list" class="space-y-4"></div>
+                </div>
+
+                <!-- Message Template -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h2 class="text-2xl font-semibold text-gray-800 mb-4">Message Template</h2>
+                    
+                    <!-- Merge Fields -->
+                    <div class="mb-4">
+                        <h3 class="text-lg font-medium text-gray-700 mb-2">Available Merge Fields</h3>
+                        <div id="merge-fields" class="flex flex-wrap gap-2"></div>
+                    </div>
+
+                    <!-- Message Input -->
+                    <div class="mb-4">
+                        <label for="message-template" class="block text-sm font-medium text-gray-700 mb-2">
+                            Your Message
+                        </label>
+                        <textarea id="message-template" rows="4" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="Type your message here. Click merge fields above to insert them into your message."></textarea>
+                    </div>
+
+                    <!-- Generate Links Button -->
+                    <button onclick="generateLinks()" 
+                        class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-md transition duration-200">
+                        Generate WhatsApp Links
+                    </button>
+                </div>
+            </div>
+
+            <!-- Privacy Settings Section -->
+            <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4">🔒 Privacy Settings</h2>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">WhatsApp Opening Method</label>
+                        <div class="space-y-2">
+                            <label class="flex items-center">
+                                <input type="radio" name="whatsapp-method" value="auto" class="mr-2" checked>
+                                <span class="text-sm">
+                                    <strong>Auto-detect (Recommended)</strong> - Uses the safest method for your browser
+                                </span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="radio" name="whatsapp-method" value="clipboard" class="mr-2">
+                                <span class="text-sm">
+                                    <strong>Clipboard (Always Private)</strong> - Message is copied, only phone is shared with WhatsApp
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <label class="flex items-center">
+                            <input type="checkbox" id="show-notifications" class="mr-2" checked>
+                            <span class="text-sm">Show privacy notifications</span>
+                        </label>
+                    </div>
+                    
+                    <div class="mt-2">
+                        <label class="flex items-center">
+                            <input type="checkbox" id="show-preview-modal" class="mr-2" checked>
+                            <span class="text-sm">Show message preview before sending</span>
+                        </label>
+                    </div>
+                    
+                    <div class="mt-2">
+                        <label class="flex items-center">
+                            <input type="checkbox" id="force-direct-whatsapp" class="mr-2">
+                            <span class="text-sm">Use direct WhatsApp Web links (recommended if desktop app doesn't show messages)</span>
+                        </label>
+                    </div>
+                    
+                    <div class="mt-4 p-3 bg-green-50 border-l-4 border-green-400 rounded">
+                        <p class="text-sm text-green-800">
+                            <strong>🔒 Privacy-First Design:</strong> This tool uses only privacy-preserving methods. Personal data (names, locations, messages) is never included in URLs that could be logged by browsers, servers, or ISPs.
+                        </p>
+                    </div>
+                    
+                    <div class="mt-4 text-center">
+                        <button onclick="showWhatsAppJailGuide()" class="text-sm text-red-600 hover:text-red-800 underline">
+                            📱 Got WhatsApp Restrictions? Recovery Guide →
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div id="results" class="hidden">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4">Generated Links</h2>
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <div id="results-content" class="space-y-4"></div>
+                </div>
+            </div>
+
+            <!-- Error Message -->
+            <div id="error-message" class="hidden">
+                <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4" role="alert">
+                    <div class="flex">
+                        <div class="py-1">
+                            <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                            </svg>
+                        </div>
+                        <div class="flex-1">
+                            <p class="font-bold">Error</p>
+                            <p class="error-text"></p>
+                            <div class="error-details mt-2 hidden">
+                                <button onclick="toggleErrorDetails()" class="text-red-700 underline text-sm">Show technical details</button>
+                                <pre class="error-details-text mt-2 text-xs bg-red-50 p-2 rounded overflow-x-auto hidden"></pre>
+                            </div>
+                        </div>
+                        <button onclick="dismissError()" class="ml-4">
+                            <svg class="h-6 w-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Warning Message -->
+            <div id="warning-message" class="hidden">
+                <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4" role="alert">
+                    <div class="flex">
+                        <div class="py-1">
+                            <svg class="h-6 w-6 text-yellow-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="font-bold">Warnings</p>
+                            <ul class="warning-list mt-2 list-disc list-inside"></ul>
+                        </div>
+                    </div>
+                    <button onclick="dismissWarning()" class="absolute top-0 right-0 p-4">
+                        <svg class="h-6 w-6 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <footer class="mt-12 py-4 border-t border-gray-200">
+                <div class="flex flex-col md:flex-row justify-between items-center space-y-2 md:space-y-0">
+                    <div class="text-sm text-gray-600">
+                        <p>SGP MessagePilot</p>
+                        <p class="text-xs">Created by SGP Digital Solutions</p>
+                    </div>
+                    <a href="/privacy" class="text-sm text-green-600 hover:text-green-800">Privacy Policy & Terms of Service</a>
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <script>
+        // Check for platform consent before allowing access
+        function checkPlatformConsent() {
+            const consent = localStorage.getItem('platform-consent-whatsapp');
+            if (!consent) {
+                // No consent found, redirect to home page
+                window.location.href = '/';
+                return false;
+            }
+            
+            try {
+                const consentData = JSON.parse(consent);
+                const consentAge = Date.now() - new Date(consentData.timestamp).getTime();
+                const maxAge = 24 * 60 * 60 * 1000; // 24 hours
+                
+                if (consentAge > maxAge) {
+                    // Consent expired, remove and redirect
+                    localStorage.removeItem('platform-consent-whatsapp');
+                    window.location.href = '/';
+                    return false;
+                }
+                
+                return true;
+            } catch (error) {
+                // Invalid consent data, redirect
+                localStorage.removeItem('platform-consent-whatsapp');
+                window.location.href = '/';
+                return false;
+            }
+        }
+
+        // Check consent immediately
+        if (!checkPlatformConsent()) {
+            // Stop script execution if no consent
+            throw new Error('No platform consent - redirecting');
+        }
+
+        let contactsData = [];
+        let mergeFields = [];
+        let isUploading = false;
+
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('file-input');
+        const uploadSection = document.getElementById('upload-section');
+        const customizationSection = document.getElementById('customization-section');
+        const resultsSection = document.getElementById('results');
+        const resultsContent = document.getElementById('results-content');
+        const errorMessage = document.getElementById('error-message');
+        const warningMessage = document.getElementById('warning-message');
+        const contactsList = document.getElementById('contacts-list');
+        const mergeFieldsContainer = document.getElementById('merge-fields');
+        const messageTemplate = document.getElementById('message-template');
+        const uploadContent = document.getElementById('upload-content');
+        const uploadLoading = document.getElementById('upload-loading');
+
+        // Prevent default drag behaviors
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, preventDefaults, false);
+            document.body.addEventListener(eventName, preventDefaults, false);
+        });
+
+        // Highlight drop zone when dragging over it
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, unhighlight, false);
+        });
+
+        // Handle dropped files
+        dropZone.addEventListener('drop', handleDrop, false);
+        fileInput.addEventListener('change', handleFiles, false);
+
+        function preventDefaults (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        function highlight(e) {
+            if (!isUploading) {
+                dropZone.classList.add('active');
+            }
+        }
+
+        function unhighlight(e) {
+            dropZone.classList.remove('active');
+            dropZone.classList.remove('error');
+        }
+
+        function showLoading() {
+            isUploading = true;
+            uploadContent.classList.add('hidden');
+            uploadLoading.classList.remove('hidden');
+            dropZone.classList.remove('active');
+            errorMessage.classList.add('hidden');
+        }
+
+        function hideLoading() {
+            isUploading = false;
+            uploadContent.classList.remove('hidden');
+            uploadLoading.classList.add('hidden');
+        }
+
+        function handleDrop(e) {
+            if (isUploading) return;
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            handleFiles({ target: { files: files } });
+        }
+
+        function handleFiles(e) {
+            if (isUploading) return;
+            const file = e.target.files[0];
+            
+            // Reset file input to allow uploading the same file again
+            fileInput.value = '';
+            
+            if (!file) return;
+            
+            // Validate file type
+            const fileExt = file.name.split('.').pop().toLowerCase();
+            if (!['xlsx', 'xls', 'csv'].includes(fileExt)) {
+                showError(`Invalid file type. Supported formats are: XLSX, XLS, CSV`);
+                return;
+            }
+            
+            // Validate file size (16MB max)
+            if (file.size > 16 * 1024 * 1024) {
+                showError('File size exceeds 16MB limit');
+                return;
+            }
+            
+            uploadFile(file);
+        }
+
+        function uploadFile(file) {
+            const formData = new FormData();
+            formData.append('file', file);
+
+            showLoading();
+            errorMessage.classList.add('hidden');
+            warningMessage.classList.add('hidden');
+
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(data => {
+                        throw new Error(data.error || `Server error: ${response.status}`);
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                
+                // Validate response structure
+                if (!data.results && !data.error) {
+                    throw new Error('Invalid server response: missing results');
+                }
+                
+                contactsData = data.results || [];
+                
+                // Store merge fields from backend response
+                mergeFields = data.merge_fields || [];
+                
+                // Show any warnings
+                if (data.warnings && data.warnings.length > 0) {
+                    showWarnings(data.warnings);
+                }
+                
+                showCustomizationSection();
+            })
+            .catch(error => {
+                console.error('Upload error:', error);
+                showError(error.message || 'An unexpected error occurred');
+            })
+            .finally(() => {
+                hideLoading();
+            });
+        }
+
+        function showCustomizationSection() {
+            uploadSection.classList.add('hidden');
+            customizationSection.classList.remove('hidden');
+            resultsSection.classList.add('hidden');
+            errorMessage.classList.add('hidden');
+
+            renderContacts();
+            renderMergeFields();
+        }
+
+        function renderContacts() {
+            contactsList.innerHTML = contactsData.map(contact => `
+                <div class="flex items-center p-4 border rounded-lg">
+                    <input type="checkbox" 
+                        id="contact-${contact.id}" 
+                        ${contact.selected ? 'checked' : ''}
+                        onchange="toggleContact(${contact.id})"
+                        class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                    <label for="contact-${contact.id}" class="ml-3 flex-1">
+                        <div class="font-medium">${contact.full_name}</div>
+                        <div class="text-gray-600">${contact.Location}</div>
+                        <div class="text-gray-500">Phone: ${contact.best_phone}</div>
+                        <div class="text-gray-400">Last Engagement: ${contact['Newest Engagement Date']}</div>
+                    </label>
+                </div>
+            `).join('');
+        }
+
+        function renderMergeFields() {
+            mergeFieldsContainer.innerHTML = mergeFields.map(field => `
+                <div class="merge-field px-3 py-1 bg-gray-100 rounded-md text-sm" 
+                    onclick="insertMergeField('${field.field}')"
+                    title="${field.description}">
+                    ${field.field}
+                </div>
+            `).join('');
+        }
+
+        function toggleContact(id) {
+            const contact = contactsData.find(c => c.id === id);
+            if (contact) {
+                contact.selected = !contact.selected;
+            }
+        }
+
+        function selectAll(selected) {
+            contactsData.forEach(contact => contact.selected = selected);
+            renderContacts();
+        }
+
+        function insertMergeField(field) {
+            const textarea = document.getElementById('message-template');
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const text = textarea.value;
+            const before = text.substring(0, start);
+            const after = text.substring(end);
+            
+            textarea.value = before + field + after;
+            textarea.focus();
+            textarea.selectionStart = textarea.selectionEnd = start + field.length;
+        }
+
+        function generateLinks() {
+            const selectedContacts = contactsData.filter(contact => contact.selected);
+            const messageText = messageTemplate.value;
+
+            if (selectedContacts.length === 0) {
+                showError('Please select at least one contact.');
+                return;
+            }
+
+            if (!messageText.trim()) {
+                showError('Please enter a message.');
+                return;
+            }
+
+            fetch('/generate_links', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    message_template: messageText,
+                    selected_contacts: selectedContacts
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    showError(data.error);
+                } else {
+                    showResults(data.results);
+                }
+            })
+            .catch(error => {
+                showError('An error occurred while generating the links.');
+            });
+        }
+
+        function showResults(results) {
+            errorMessage.classList.add('hidden');
+            resultsSection.classList.remove('hidden');
+            resultsContent.innerHTML = results.map((result, index) => `
+                <div class="border-b border-gray-200 pb-4">
+                    <div class="flex justify-between items-start">
+                        <div class="flex items-start space-x-3 flex-1">
+                            <div class="flex flex-col items-center mt-1">
+                                <input type="checkbox" 
+                                       id="sent-${index}" 
+                                       class="h-5 w-5 text-green-600 focus:ring-green-500 border-gray-300 rounded sent-checkbox"
+                                       data-contact-index="${index}">
+                                <label for="sent-${index}" class="text-xs text-gray-500 mt-1">Sent</label>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="text-lg font-semibold">${result.name}</h3>
+                                <p class="text-gray-600">${result.location}</p>
+                                <p class="text-gray-500">Phone: ${result.phone}</p>
+                                <p class="text-gray-400">Last Engagement: ${result.engagement_date}</p>
+                                ${result.volunteer_url ? `<p class="text-gray-400">Volunteer URL: ${result.volunteer_url}</p>` : ''}
+                            </div>
+                        </div>
+                        <button class="whatsapp-btn sgp-green sgp-green-hover text-white font-bold py-2 px-4 rounded"
+                               data-phone="${result.best_phone}"
+                               data-name="${result.name}"
+                               data-location="${result.location}"
+                               data-message-text="${result.message}"
+                               data-contact-index="${index}"
+                               data-whatsapp-url="https://web.whatsapp.com/send?phone=${result.best_phone}&text=${encodeURIComponent(result.message)}"
+                               data-whatsapp-web="https://web.whatsapp.com/send?phone=${result.best_phone}&text=${encodeURIComponent(result.message)}"
+                               data-whatsapp-mobile="https://wa.me/${result.best_phone}?text=${encodeURIComponent(result.message)}">
+                            Open in WhatsApp
+                        </button>
+                    </div>
+                    <div class="mt-2">
+                        <p class="text-gray-700">${result.message}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function maskPhoneNumber(phone) {
+            // Only show last 4 digits
+            return `****-****-${phone.slice(-4)}`;
+        }
+
+        function showError(message, details = null) {
+            errorMessage.classList.remove('hidden');
+            errorMessage.querySelector('.error-text').textContent = message;
+            
+            const errorDetails = errorMessage.querySelector('.error-details');
+            const errorDetailsText = errorMessage.querySelector('.error-details-text');
+            
+            if (details) {
+                errorDetails.classList.remove('hidden');
+                errorDetailsText.textContent = details;
+            } else {
+                errorDetails.classList.add('hidden');
+                errorDetailsText.textContent = '';
+            }
+            
+            window.scrollTo({ top: errorMessage.offsetTop - 20, behavior: 'smooth' });
+            dropZone.classList.add('error');
+        }
+
+        function toggleErrorDetails() {
+            const errorDetailsText = errorMessage.querySelector('.error-details-text');
+            const isHidden = errorDetailsText.classList.contains('hidden');
+            errorDetailsText.classList.toggle('hidden');
+            
+            const button = errorMessage.querySelector('.error-details button');
+            button.textContent = isHidden ? 'Hide technical details' : 'Show technical details';
+        }
+
+        function showWarnings(warnings) {
+            if (!warnings || warnings.length === 0) {
+                warningMessage.classList.add('hidden');
+                return;
+            }
+            
+            const warningList = warningMessage.querySelector('.warning-list');
+            warningList.innerHTML = warnings.map(warning => 
+                `<li>${warning}</li>`
+            ).join('');
+            
+            warningMessage.classList.remove('hidden');
+            window.scrollTo({ top: warningMessage.offsetTop - 20, behavior: 'smooth' });
+        }
+
+        function dismissWarning() {
+            warningMessage.classList.add('hidden');
+        }
+
+        function dismissError() {
+            errorMessage.classList.add('hidden');
+            dropZone.classList.remove('error');
+        }
+
+        // Privacy-First WhatsApp Handler Class
+        class WhatsAppHandler {
+            constructor(options = {}) {
+                this.options = {
+                    fallbackToModal: true,
+                    showNotifications: true,
+                    notificationDuration: 5000,
+                    enableUserPreferences: true,
+                    ...options
+                };
+                
+                this.userPreferences = this.loadUserPreferences();
+                this.initializeStyles();
+            }
+            
+                         async openWhatsApp(phone, message, contact = {}) {
+                 // Debug logging
+                 console.log('WhatsAppHandler.openWhatsApp called:', {
+                     phone: phone,
+                     message: message,
+                     contact: contact,
+                     showPreviewModal: this.userPreferences.showPreviewModal
+                 });
+                 
+                 // Validate inputs
+                 if (!phone || phone === 'undefined') {
+                     this.showError('Invalid phone number');
+                     return;
+                 }
+                 
+                 if (!message || message === 'undefined') {
+                     console.error('Invalid message:', message);
+                     this.showError('Invalid message');
+                     return;
+                 }
+                 
+                 // Show preview modal if enabled
+                 if (this.userPreferences.showPreviewModal) {
+                     this.showPreviewModal(phone, message, contact);
+                     return;
+                 }
+                 
+                 // Direct sending based on method preference
+                 this.sendDirectly(phone, message, contact);
+             }
+             
+             sendDirectly(phone, message, contact) {
+                 // Check user preference
+                 if (this.userPreferences.method === 'clipboard') {
+                     this.clipboardMethod(phone, message, contact);
+                 } else {
+                     // Auto-detect best method (default privacy-first)
+                     this.autoMethod(phone, message, contact);
+                 }
+             }
+            
+                         async autoMethod(phone, message, contact) {
+                 // Try clipboard first (privacy-friendly)
+                 if (await this.hasClipboardSupport()) {
+                     await this.clipboardMethod(phone, message, contact);
+                 } else {
+                     // Always fallback to privacy-preserving modal
+                     this.showCopyModal(phone, message, contact);
+                 }
+             }
+            
+            async clipboardMethod(phone, message, contact) {
+                try {
+                    console.log('Clipboard method called with message:', message);
+                    await navigator.clipboard.writeText(message);
+                    console.log('Message copied to clipboard successfully');
+                    
+                    // Open WhatsApp Web with phone only (privacy-safe, avoids desktop app)
+                    const whatsappUrl = `https://web.whatsapp.com/send?phone=${phone}`;
+                    console.log('Opening WhatsApp Web URL:', whatsappUrl);
+                    window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+                    
+                    if (this.options.showNotifications) {
+                        this.showNotification({
+                            type: 'success',
+                            title: 'Message Ready! 📋',
+                            message: `Message for ${contact.name || 'contact'} copied to clipboard. Paste it in WhatsApp.`,
+                            duration: this.options.notificationDuration
+                        });
+                    }
+                    
+                } catch (error) {
+                    console.warn('Clipboard failed, falling back:', error);
+                    this.showCopyModal(phone, message, contact);
+                }
+            }
+            
+            
+            
+                         showCopyModal(phone, message, contact) {
+                 const modal = document.createElement('div');
+                 modal.className = 'whatsapp-modal-overlay';
+                 modal.innerHTML = `
+                     <div class="whatsapp-modal-content">
+                         <div class="whatsapp-modal-header">
+                             <h3>Send Message to ${contact.name || 'Contact'}</h3>
+                             <button class="whatsapp-modal-close" onclick="this.closest('.whatsapp-modal-overlay').remove()">×</button>
+                         </div>
+                         
+                         <div class="whatsapp-modal-body">
+                             <div class="contact-info">
+                                 <strong>${contact.name || 'Contact'}</strong>
+                                 <span class="phone-display">****-****-${phone.slice(-4)}</span>
+                             </div>
+                             
+                             <div class="message-section">
+                                 <label>Your Message:</label>
+                                 <textarea readonly class="copy-message" onclick="this.select()">${message}</textarea>
+                                 <button class="copy-btn" onclick="this.previousElementSibling.select(); document.execCommand('copy'); this.textContent='Copied!'; setTimeout(() => this.textContent='📋 Copy Message', 2000)">
+                                     📋 Copy Message
+                                 </button>
+                             </div>
+                             
+                             <div class="instructions">
+                                 <p><strong>Instructions:</strong></p>
+                                 <ol>
+                                     <li>Copy the message above</li>
+                                     <li>Click "Open WhatsApp" below</li>
+                                     <li>Paste the message in the chat</li>
+                                 </ol>
+                             </div>
+                             
+                             <div class="privacy-notice">
+                                 <small>🔒 This method keeps your personal data private by not including it in URLs</small>
+                             </div>
+                         </div>
+                         
+                         <div class="whatsapp-modal-actions">
+                             <button class="btn-secondary" onclick="this.closest('.whatsapp-modal-overlay').remove()">
+                                 Cancel
+                             </button>
+                             <button class="btn-primary" onclick="window.open('https://wa.me/${phone}', '_blank', 'noopener,noreferrer'); this.closest('.whatsapp-modal-overlay').remove();">
+                                 Open WhatsApp
+                             </button>
+                         </div>
+                     </div>
+                 `;
+                 
+                 // Add keyboard support
+                 modal.addEventListener('keydown', (e) => {
+                     if (e.key === 'Escape') {
+                         modal.remove();
+                     }
+                 });
+                 
+                 document.body.appendChild(modal);
+                 
+                 // Focus first button for accessibility
+                 modal.querySelector('.copy-btn').focus();
+             }
+             
+             showPreviewModal(phone, message, contact) {
+                 const modal = document.createElement('div');
+                 modal.className = 'whatsapp-modal-overlay';
+                 modal.innerHTML = `
+                     <div class="whatsapp-modal-content">
+                         <div class="whatsapp-modal-header">
+                             <h3>Review Your Message</h3>
+                             <button class="whatsapp-modal-close" onclick="this.closest('.whatsapp-modal-overlay').remove()">×</button>
+                         </div>
+                         
+                         <div class="whatsapp-modal-body">
+                             <div class="contact-info">
+                                 <strong>${contact.name || 'Contact'}</strong>
+                                 <span class="phone-display">Phone: ****-****-${phone.slice(-4)}</span>
+                                 ${contact.location ? `<div class="contact-location">📍 ${contact.location}</div>` : ''}
+                             </div>
+                             
+                             <div class="message-section">
+                                 <label>Message Preview:</label>
+                                 <textarea id="editable-message" class="editable-message" rows="4">${message}</textarea>
+                                 <small class="text-gray-500">You can edit this message before sending</small>
+                             </div>
+                             
+                             <div class="privacy-info">
+                                 <div class="privacy-method">
+                                     <strong>Privacy Method:</strong> 
+                                     <span class="method-${this.userPreferences.method || 'auto'}">
+                                         ${this.getMethodDescription()}
+                                     </span>
+                                 </div>
+                             </div>
+                             
+                             <div class="privacy-notice">
+                                 <small>⚠️ This action will open WhatsApp with the contact's information.</small>
+                             </div>
+                         </div>
+                         
+                         <div class="whatsapp-modal-actions">
+                             <button class="btn-secondary" onclick="this.closest('.whatsapp-modal-overlay').remove()">
+                                 Cancel
+                             </button>
+                             <button class="btn-primary" onclick="whatsappHandler.sendWithEditedMessage('${phone}', document.getElementById('editable-message').value, ${JSON.stringify(contact).replace(/"/g, '&quot;')}); this.closest('.whatsapp-modal-overlay').remove();">
+                                 Send Message
+                             </button>
+                         </div>
+                     </div>
+                 `;
+                 
+                 // Add keyboard support
+                 modal.addEventListener('keydown', (e) => {
+                     if (e.key === 'Escape') {
+                         modal.remove();
+                     }
+                 });
+                 
+                 document.body.appendChild(modal);
+                 
+                 // Focus message textarea for editing
+                 modal.querySelector('#editable-message').focus();
+             }
+             
+             getMethodDescription() {
+                 switch(this.userPreferences.method) {
+                     case 'clipboard': return '🔒 Clipboard (Always Private)';
+                     default: return '🤖 Auto-detect (Privacy-First)';
+                 }
+             }
+             
+             sendWithEditedMessage(phone, message, contact) {
+                 // Handle the final sending after message editing
+                 this.sendDirectly(phone, message, contact);
+             }
+            
+            async hasClipboardSupport() {
+                return navigator.clipboard && 
+                       typeof navigator.clipboard.writeText === 'function' &&
+                       window.isSecureContext; // HTTPS required
+            }
+            
+            showNotification(options) {
+                const notification = document.createElement('div');
+                notification.className = `whatsapp-notification whatsapp-notification-${options.type}`;
+                notification.innerHTML = `
+                    <div class="notification-content">
+                        <strong>${options.title}</strong>
+                        <p>${options.message}</p>
+                    </div>
+                    <button class="notification-close" onclick="this.parentElement.remove()">×</button>
+                `;
+                
+                document.body.appendChild(notification);
+                
+                // Auto-remove after duration
+                setTimeout(() => {
+                    if (notification.parentElement) {
+                        notification.remove();
+                    }
+                }, options.duration || 5000);
+                
+                // Animate in
+                setTimeout(() => notification.classList.add('show'), 10);
+            }
+            
+            showError(message) {
+                this.showNotification({
+                    type: 'error',
+                    title: 'Error',
+                    message: message,
+                    duration: 5000
+                });
+            }
+            
+                         loadUserPreferences() {
+                 const stored = localStorage.getItem('whatsapp-preferences');
+                 return stored ? JSON.parse(stored) : {
+                     method: 'auto', // 'auto', 'clipboard'
+                     showNotifications: true,
+                     showPreviewModal: true
+                 };
+             }
+            
+            saveUserPreferences(preferences) {
+                this.userPreferences = { ...this.userPreferences, ...preferences };
+                localStorage.setItem('whatsapp-preferences', JSON.stringify(this.userPreferences));
+            }
+            
+            initializeStyles() {
+                if (document.getElementById('whatsapp-handler-styles')) return;
+                
+                const styles = document.createElement('style');
+                styles.id = 'whatsapp-handler-styles';
+                styles.textContent = `
+                    .whatsapp-modal-overlay {
+                        position: fixed;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        bottom: 0;
+                        background: rgba(0, 0, 0, 0.5);
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        z-index: 1000;
+                        padding: 1rem;
+                    }
+                    
+                    .whatsapp-modal-content {
+                        background: white;
+                        border-radius: 8px;
+                        max-width: 500px;
+                        width: 100%;
+                        max-height: 90vh;
+                        overflow-y: auto;
+                        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+                    }
+                    
+                    .whatsapp-modal-header {
+                        padding: 1.5rem;
+                        border-bottom: 1px solid #e5e7eb;
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                    }
+                    
+                    .whatsapp-modal-header h3 {
+                        margin: 0;
+                        font-size: 1.25rem;
+                        font-weight: 600;
+                        color: #1f2937;
+                    }
+                    
+                    .whatsapp-modal-close {
+                        background: none;
+                        border: none;
+                        font-size: 1.5rem;
+                        cursor: pointer;
+                        color: #6b7280;
+                        padding: 0;
+                        width: 2rem;
+                        height: 2rem;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        border-radius: 4px;
+                    }
+                    
+                    .whatsapp-modal-close:hover {
+                        background-color: #f3f4f6;
+                        color: #374151;
+                    }
+                    
+                    .whatsapp-modal-body {
+                        padding: 1.5rem;
+                        space-y: 1rem;
+                    }
+                    
+                    .contact-info {
+                        background: #f9fafb;
+                        padding: 1rem;
+                        border-radius: 6px;
+                        margin-bottom: 1rem;
+                    }
+                    
+                                         .contact-info strong {
+                         display: block;
+                         color: #1f2937;
+                         font-size: 1.1rem;
+                     }
+                     
+                     .phone-display {
+                         color: #6b7280;
+                         font-size: 0.9rem;
+                     }
+                     
+                     .contact-location {
+                         color: #6b7280;
+                         font-size: 0.85rem;
+                         margin-top: 0.25rem;
+                     }
+                     
+                     .editable-message {
+                         width: 100%;
+                         min-height: 100px;
+                         padding: 0.75rem;
+                         border: 1px solid #d1d5db;
+                         border-radius: 6px;
+                         font-family: inherit;
+                         font-size: 0.9rem;
+                         line-height: 1.4;
+                         resize: vertical;
+                         background: white;
+                     }
+                     
+                     .editable-message:focus {
+                         outline: none;
+                         border-color: #3b82f6;
+                         box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+                     }
+                     
+                     .privacy-info {
+                         background: #f8fafc;
+                         padding: 0.75rem;
+                         border-radius: 6px;
+                         margin: 1rem 0;
+                         border: 1px solid #e2e8f0;
+                     }
+                     
+                     .privacy-method {
+                         font-size: 0.9rem;
+                         color: #475569;
+                     }
+                     
+                     .method-auto {
+                         color: #059669;
+                     }
+                     
+                     .method-clipboard {
+                         color: #0ea5e9;
+                     }
+                    
+                    .message-section {
+                        margin: 1rem 0;
+                    }
+                    
+                    .message-section label {
+                        display: block;
+                        font-weight: 500;
+                        color: #374151;
+                        margin-bottom: 0.5rem;
+                    }
+                    
+                    .copy-message {
+                        width: 100%;
+                        min-height: 100px;
+                        padding: 0.75rem;
+                        border: 1px solid #d1d5db;
+                        border-radius: 6px;
+                        font-family: inherit;
+                        font-size: 0.9rem;
+                        line-height: 1.4;
+                        resize: vertical;
+                        background: #fafafa;
+                    }
+                    
+                    .copy-btn {
+                        margin-top: 0.5rem;
+                        background: #10b981;
+                        color: white;
+                        border: none;
+                        padding: 0.5rem 1rem;
+                        border-radius: 4px;
+                        cursor: pointer;
+                        font-size: 0.9rem;
+                        transition: background-color 0.2s;
+                    }
+                    
+                    .copy-btn:hover {
+                        background: #059669;
+                    }
+                    
+                    .instructions {
+                        background: #eff6ff;
+                        padding: 1rem;
+                        border-radius: 6px;
+                        border-left: 4px solid #3b82f6;
+                        margin: 1rem 0;
+                    }
+                    
+                    .instructions p {
+                        margin: 0 0 0.5rem 0;
+                        color: #1e40af;
+                        font-weight: 500;
+                    }
+                    
+                    .instructions ol {
+                        margin: 0;
+                        padding-left: 1.2rem;
+                        color: #1e3a8a;
+                    }
+                    
+                    .instructions li {
+                        margin-bottom: 0.25rem;
+                    }
+                    
+                    .privacy-notice {
+                        background: #f0fdf4;
+                        padding: 0.75rem;
+                        border-radius: 4px;
+                        border-left: 3px solid #10b981;
+                        margin: 1rem 0;
+                    }
+                    
+                    .privacy-notice small {
+                        color: #166534;
+                        font-size: 0.85rem;
+                    }
+                    
+                    .whatsapp-modal-actions {
+                        padding: 1.5rem;
+                        border-top: 1px solid #e5e7eb;
+                        display: flex;
+                        gap: 0.75rem;
+                        justify-content: flex-end;
+                    }
+                    
+                    .btn-secondary {
+                        background: #f3f4f6;
+                        color: #374151;
+                        border: 1px solid #d1d5db;
+                        padding: 0.5rem 1rem;
+                        border-radius: 6px;
+                        cursor: pointer;
+                        font-size: 0.9rem;
+                        transition: all 0.2s;
+                    }
+                    
+                    .btn-secondary:hover {
+                        background: #e5e7eb;
+                        border-color: #9ca3af;
+                    }
+                    
+                    .btn-primary {
+                        background: #22c55e;
+                        color: white;
+                        border: none;
+                        padding: 0.5rem 1rem;
+                        border-radius: 6px;
+                        cursor: pointer;
+                        font-size: 0.9rem;
+                        font-weight: 500;
+                        transition: background-color 0.2s;
+                    }
+                    
+                    .btn-primary:hover {
+                        background: #16a34a;
+                    }
+                    
+                    .whatsapp-notification {
+                        position: fixed;
+                        top: 1rem;
+                        right: 1rem;
+                        background: white;
+                        border-radius: 8px;
+                        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                        padding: 1rem;
+                        max-width: 400px;
+                        z-index: 1001;
+                        border-left: 4px solid #10b981;
+                        opacity: 0;
+                        transform: translateY(-1rem);
+                        transition: all 0.3s ease;
+                        display: flex;
+                        align-items: flex-start;
+                        gap: 0.75rem;
+                    }
+                    
+                    .whatsapp-notification.show {
+                        opacity: 1;
+                        transform: translateY(0);
+                    }
+                    
+                    .whatsapp-notification-success {
+                        border-left-color: #10b981;
+                    }
+                    
+                    .whatsapp-notification-error {
+                        border-left-color: #ef4444;
+                    }
+                    
+                    .whatsapp-notification-info {
+                        border-left-color: #3b82f6;
+                    }
+                    
+                    .notification-content {
+                        flex: 1;
+                    }
+                    
+                    .notification-content strong {
+                        display: block;
+                        color: #1f2937;
+                        font-size: 0.95rem;
+                        margin-bottom: 0.25rem;
+                    }
+                    
+                    .notification-content p {
+                        margin: 0;
+                        color: #6b7280;
+                        font-size: 0.9rem;
+                        line-height: 1.4;
+                    }
+                    
+                    .notification-close {
+                        background: none;
+                        border: none;
+                        color: #6b7280;
+                        cursor: pointer;
+                        font-size: 1.2rem;
+                        padding: 0;
+                        width: 1.5rem;
+                        height: 1.5rem;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        border-radius: 3px;
+                        flex-shrink: 0;
+                    }
+                    
+                    .notification-close:hover {
+                        background: #f3f4f6;
+                        color: #374151;
+                    }
+                    
+                    @media (max-width: 640px) {
+                        .whatsapp-modal-overlay {
+                            padding: 0.5rem;
+                        }
+                        
+                        .whatsapp-modal-header, .whatsapp-modal-body, .whatsapp-modal-actions {
+                            padding: 1rem;
+                        }
+                        
+                        .whatsapp-notification {
+                            right: 0.5rem;
+                            left: 0.5rem;
+                            max-width: none;
+                        }
+                    }
+                `;
+                document.head.appendChild(styles);
+            }
+        }
+        
+        // Initialize WhatsApp Handler
+        const whatsappHandler = new WhatsAppHandler({
+            fallbackToModal: true,
+            showNotifications: true,
+            enableUserPreferences: true
+        });
+        
+        // Rate Limiting and Anti-Spam Manager
+        class RateLimitManager {
+            constructor() {
+                this.messagesSent = [];
+                this.warningShown = false;
+                this.maxMessagesPerMinute = 10;
+                this.maxMessagesPerHour = 100;
+                this.minDelayBetweenMessages = 8000; // 8 seconds minimum
+                this.recommendedDelay = 15000; // 15 seconds recommended
+            }
+
+            canSendMessage() {
+                const now = Date.now();
+                
+                // Clean old entries (older than 1 hour)
+                this.messagesSent = this.messagesSent.filter(time => now - time < 3600000);
+                
+                // Check messages in last minute
+                const messagesLastMinute = this.messagesSent.filter(time => now - time < 60000).length;
+                const messagesLastHour = this.messagesSent.length;
+                
+                // Get last message time
+                const lastMessageTime = this.messagesSent.length > 0 ? Math.max(...this.messagesSent) : 0;
+                const timeSinceLastMessage = now - lastMessageTime;
+                
+                return {
+                    canSend: messagesLastMinute < this.maxMessagesPerMinute && 
+                             messagesLastHour < this.maxMessagesPerHour &&
+                             timeSinceLastMessage >= this.minDelayBetweenMessages,
+                    messagesLastMinute,
+                    messagesLastHour,
+                    timeSinceLastMessage,
+                    recommendedWaitTime: Math.max(0, this.minDelayBetweenMessages - timeSinceLastMessage),
+                    isNearLimit: messagesLastMinute >= 8 || messagesLastHour >= 80
+                };
+            }
+
+            recordMessage() {
+                this.messagesSent.push(Date.now());
+                this.saveToStorage();
+            }
+
+            getStats() {
+                const now = Date.now();
+                const messagesLastMinute = this.messagesSent.filter(time => now - time < 60000).length;
+                const messagesLastHour = this.messagesSent.filter(time => now - time < 3600000).length;
+                
+                return {
+                    messagesLastMinute,
+                    messagesLastHour,
+                    maxPerMinute: this.maxMessagesPerMinute,
+                    maxPerHour: this.maxMessagesPerHour
+                };
+            }
+
+            showRateLimitWarning(status) {
+                const modal = document.createElement('div');
+                modal.className = 'fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4';
+                modal.innerHTML = `
+                    <div class="bg-white rounded-xl max-w-md w-full p-6">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-4">
+                                <svg class="w-6 h-6 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.667-1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-semibold text-red-800">Rate Limit Warning</h3>
+                                <p class="text-sm text-red-600">Protect your WhatsApp account</p>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                                <h4 class="font-medium text-yellow-800 mb-2">⚠️ You're sending messages too quickly!</h4>
+                                <p class="text-sm text-yellow-700">
+                                    WhatsApp may restrict your account if you send too many messages rapidly. 
+                                    This looks like spam to their systems.
+                                </p>
+                            </div>
+                            
+                            <div class="space-y-2">
+                                <div class="flex justify-between text-sm">
+                                    <span>Messages last minute:</span>
+                                    <span class="${status.messagesLastMinute >= 8 ? 'text-red-600 font-semibold' : 'text-gray-600'}">${status.messagesLastMinute}/${this.maxMessagesPerMinute}</span>
+                                </div>
+                                <div class="flex justify-between text-sm">
+                                    <span>Messages last hour:</span>
+                                    <span class="${status.messagesLastHour >= 80 ? 'text-red-600 font-semibold' : 'text-gray-600'}">${status.messagesLastHour}/${this.maxMessagesPerHour}</span>
+                                </div>
+                                <div class="flex justify-between text-sm">
+                                    <span>Recommended wait time:</span>
+                                    <span class="text-blue-600 font-semibold">${Math.ceil(status.recommendedWaitTime / 1000)} seconds</span>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                                <h4 class="font-medium text-green-800 mb-2">💡 Best Practices:</h4>
+                                <ul class="text-sm text-green-700 space-y-1">
+                                    <li>• Wait 15-30 seconds between messages</li>
+                                    <li>• Send max 100 messages per hour</li>
+                                    <li>• Personalize your messages</li>
+                                    <li>• Only message people who expect to hear from you</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="flex justify-end space-x-3 mt-6">
+                            <button onclick="this.closest('.fixed').remove()" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
+                                Cancel
+                            </button>
+                            <button onclick="rateLimitManager.proceedAnyway(this)" class="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700">
+                                Send Anyway (Risky)
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                document.body.appendChild(modal);
+            }
+
+            proceedAnyway(button) {
+                // Store the pending action and proceed
+                const modal = button.closest('.fixed');
+                if (this.pendingAction) {
+                    this.pendingAction();
+                    this.recordMessage();
+                }
+                modal.remove();
+            }
+
+            saveToStorage() {
+                localStorage.setItem('whatsapp-rate-limit', JSON.stringify({
+                    messagesSent: this.messagesSent,
+                    timestamp: Date.now()
+                }));
+            }
+
+            loadFromStorage() {
+                try {
+                    const stored = localStorage.getItem('whatsapp-rate-limit');
+                    if (stored) {
+                        const data = JSON.parse(stored);
+                        // Only load if data is less than 24 hours old
+                        if (Date.now() - data.timestamp < 86400000) {
+                            this.messagesSent = data.messagesSent || [];
+                        }
+                    }
+                } catch (error) {
+                    console.warn('Failed to load rate limit data:', error);
+                }
+            }
+        }
+
+        // Initialize Rate Limit Manager
+        const rateLimitManager = new RateLimitManager();
+        rateLimitManager.loadFromStorage();
+
+        // Rate Limit Status Display
+        function updateRateLimitStatus() {
+            const stats = rateLimitManager.getStats();
+            const statusElement = document.getElementById('rate-limit-status');
+            
+            if (statusElement) {
+                const warningLevel = stats.messagesLastMinute >= 8 || stats.messagesLastHour >= 80 ? 'warning' : 
+                                   stats.messagesLastMinute >= 5 || stats.messagesLastHour >= 50 ? 'caution' : 'normal';
+                
+                statusElement.innerHTML = `
+                    <div class="rate-limit-display ${warningLevel}">
+                        <span class="text-xs">Messages: ${stats.messagesLastMinute}/min, ${stats.messagesLastHour}/hour</span>
+                        ${warningLevel === 'warning' ? '<span class="text-xs text-red-600">⚠️ Slow down!</span>' : ''}
+                    </div>
+                `;
+            }
+        }
+
+        // Add rate limit status to page
+        document.addEventListener('DOMContentLoaded', function() {
+            const resultsSection = document.getElementById('results');
+            if (resultsSection) {
+                const statusDiv = document.createElement('div');
+                statusDiv.id = 'rate-limit-status';
+                statusDiv.className = 'mb-4';
+                resultsSection.insertBefore(statusDiv, resultsSection.firstChild);
+                updateRateLimitStatus();
+                
+                // Update every 5 seconds
+                setInterval(updateRateLimitStatus, 5000);
+            }
+        });
+
+        // WhatsApp Jail Recovery Guide
+        function showWhatsAppJailGuide() {
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4';
+            modal.innerHTML = `
+                <div class="bg-white rounded-xl max-w-4xl w-full max-h-screen overflow-y-auto">
+                    <div class="p-6">
+                        <div class="flex items-center mb-6">
+                            <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mr-4">
+                                <svg class="w-10 h-10 text-red-600" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.488"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-2xl font-bold text-red-800">WhatsApp Account Restricted?</h3>
+                                <p class="text-gray-600">Recovery guide and prevention tips</p>
+                            </div>
+                            <button onclick="this.closest('.fixed').remove()" class="ml-auto p-2 hover:bg-gray-100 rounded-full">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
+                        </div>
+
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <!-- Recovery Steps -->
+                            <div class="space-y-4">
+                                <div class="whatsapp-jail-notice">
+                                    <h4 class="font-bold text-red-800 mb-3 text-lg">🚨 Account Restricted - What to Do</h4>
+                                    
+                                    <div class="space-y-3">
+                                        <div class="flex items-start">
+                                            <span class="bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3 mt-1">1</span>
+                                            <div>
+                                                <h5 class="font-semibold text-red-800">Stop All Bulk Messaging</h5>
+                                                <p class="text-sm text-red-700">Immediately cease all bulk messaging activities for 24-48 hours.</p>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="flex items-start">
+                                            <span class="bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3 mt-1">2</span>
+                                            <div>
+                                                <h5 class="font-semibold text-red-800">Wait for Restrictions to Lift</h5>
+                                                <p class="text-sm text-red-700">Temporary bans usually last 12-24 hours. Don't try to send messages during this time.</p>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="flex items-start">
+                                            <span class="bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3 mt-1">3</span>
+                                            <div>
+                                                <h5 class="font-semibold text-red-800">Test with Normal Messages</h5>
+                                                <p class="text-sm text-red-700">After the wait period, send 1-2 normal messages to friends/family to test if restrictions are lifted.</p>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="flex items-start">
+                                            <span class="bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3 mt-1">4</span>
+                                            <div>
+                                                <h5 class="font-semibold text-red-800">Gradual Return to Messaging</h5>
+                                                <p class="text-sm text-red-700">Start with 5-10 messages per hour with proper delays. Build up slowly over several days.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                                    <h4 class="font-semibold text-yellow-800 mb-2">⏱️ Common Restriction Types</h4>
+                                    <ul class="text-sm text-yellow-700 space-y-1">
+                                        <li><strong>Temporary Ban (12-24h):</strong> Cannot send messages</li>
+                                        <li><strong>Shadow Ban:</strong> Messages don't deliver</li>
+                                        <li><strong>Permanent Ban:</strong> Account completely disabled</li>
+                                        <li><strong>Number Block:</strong> WhatsApp blocks your phone number</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!-- Prevention Tips -->
+                            <div class="space-y-4">
+                                <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                                    <h4 class="font-bold text-green-800 mb-3 text-lg">✅ Prevention Best Practices</h4>
+                                    
+                                    <div class="space-y-3">
+                                        <div>
+                                            <h5 class="font-semibold text-green-800">⏱️ Timing Guidelines</h5>
+                                            <ul class="text-sm text-green-700 mt-1 space-y-1">
+                                                <li>• Wait 15-30 seconds between messages</li>
+                                                <li>• Max 100 messages per hour</li>
+                                                <li>• Max 1,000 messages per day</li>
+                                                <li>• Take breaks every 20-30 messages</li>
+                                            </ul>
+                                        </div>
+                                        
+                                        <div>
+                                            <h5 class="font-semibold text-green-800">📝 Message Guidelines</h5>
+                                            <ul class="text-sm text-green-700 mt-1 space-y-1">
+                                                <li>• Personalize every message</li>
+                                                <li>• Avoid identical copy-paste messages</li>
+                                                <li>• Include recipient's name</li>
+                                                <li>• Make messages relevant to recipient</li>
+                                            </ul>
+                                        </div>
+                                        
+                                        <div>
+                                            <h5 class="font-semibold text-green-800">👥 Contact Guidelines</h5>
+                                            <ul class="text-sm text-green-700 mt-1 space-y-1">
+                                                <li>• Only message people who know you</li>
+                                                <li>• Get explicit consent first</li>
+                                                <li>• Don't message random numbers</li>
+                                                <li>• Stop if people ask you to</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                    <h4 class="font-semibold text-blue-800 mb-2">🛡️ Technical Tips</h4>
+                                    <ul class="text-sm text-blue-700 space-y-1">
+                                        <li>• Use WhatsApp Web instead of mobile app</li>
+                                        <li>• Don't use multiple devices simultaneously</li>
+                                        <li>• Clear WhatsApp cache periodically</li>
+                                        <li>• Update WhatsApp regularly</li>
+                                        <li>• Use this tool's rate limiting features</li>
+                                    </ul>
+                                </div>
+                                
+                                <div class="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                                    <h4 class="font-semibold text-purple-800 mb-2">🔧 Tool Settings</h4>
+                                    <p class="text-sm text-purple-700 mb-2">This tool now includes protective features:</p>
+                                    <ul class="text-sm text-purple-700 space-y-1">
+                                        <li>• Automatic rate limiting</li>
+                                        <li>• Warning before hitting limits</li>
+                                        <li>• Message count tracking</li>
+                                        <li>• Forced delays between messages</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-6 pt-4 border-t border-gray-200">
+                            <div class="bg-gray-50 rounded-lg p-4">
+                                <h4 class="font-semibold text-gray-800 mb-2">⚖️ Important Legal Notice</h4>
+                                <p class="text-sm text-gray-700">
+                                    This tool is designed for legitimate business communication only. You must have proper consent 
+                                    to message all contacts and comply with WhatsApp's Terms of Service, GDPR, and local privacy laws. 
+                                    SGP Digital Solutions is not responsible for account restrictions resulting from misuse.
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex justify-end mt-6">
+                            <button onclick="this.closest('.fixed').remove()" class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-semibold">
+                                Got It - Use Tool Safely
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // Close on escape key
+            modal.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    modal.remove();
+                }
+            });
+        }
+
+        // Initialize preferences UI
+        function initializePreferences() {
+            const preferences = whatsappHandler.loadUserPreferences();
+            
+            // Set radio button values
+            const methodRadios = document.querySelectorAll('input[name="whatsapp-method"]');
+            methodRadios.forEach(radio => {
+                if (radio.value === preferences.method) {
+                    radio.checked = true;
+                }
+                
+                radio.addEventListener('change', (e) => {
+                    if (e.target.checked) {
+                        whatsappHandler.saveUserPreferences({ method: e.target.value });
+                    }
+                });
+            });
+            
+                         // Set notifications checkbox
+             const notificationsCheckbox = document.getElementById('show-notifications');
+             notificationsCheckbox.checked = preferences.showNotifications;
+             notificationsCheckbox.addEventListener('change', (e) => {
+                 whatsappHandler.saveUserPreferences({ showNotifications: e.target.checked });
+                 whatsappHandler.options.showNotifications = e.target.checked;
+             });
+             
+             // Set preview modal checkbox
+             const previewModalCheckbox = document.getElementById('show-preview-modal');
+             previewModalCheckbox.checked = preferences.showPreviewModal;
+             previewModalCheckbox.addEventListener('change', (e) => {
+                 whatsappHandler.saveUserPreferences({ showPreviewModal: e.target.checked });
+             });
+             
+             // Set force direct WhatsApp checkbox
+             const forceDirectCheckbox = document.getElementById('force-direct-whatsapp');
+             forceDirectCheckbox.checked = localStorage.getItem('force-direct-whatsapp') === 'true';
+             forceDirectCheckbox.addEventListener('change', (e) => {
+                 localStorage.setItem('force-direct-whatsapp', e.target.checked);
+             });
+        }
+        
+                // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            initializePreferences();
+        });
+        
+        // Legacy function for backward compatibility
+        function safeOpenWhatsApp(phone, message, contactName = '') {
+            whatsappHandler.openWhatsApp(phone, message, { name: contactName });
+        }
+        
+        // Enhanced function with contact details
+        function safeOpenWhatsAppWithContact(phone, message, contactName = '', location = '') {
+            whatsappHandler.openWhatsApp(phone, message, { 
+                name: contactName,
+                location: location 
+            });
+        }
+        
+        // Event delegation for sent checkboxes
+        document.addEventListener('change', function(event) {
+            if (event.target.classList.contains('sent-checkbox')) {
+                const checkbox = event.target;
+                const contactDiv = checkbox.closest('.border-b');
+                if (contactDiv) {
+                    if (checkbox.checked) {
+                        contactDiv.classList.add('contact-sent');
+                    } else {
+                        contactDiv.classList.remove('contact-sent');
+                        contactDiv.style.backgroundColor = '';
+                        contactDiv.style.border = '';
+                    }
+                }
+            }
+        });
+
+        // Event delegation for WhatsApp buttons to avoid JavaScript injection issues
+        document.addEventListener('click', function(event) {
+            if (event.target.classList.contains('whatsapp-btn')) {
+                const button = event.target;
+                const phone = button.getAttribute('data-phone');
+                const message = button.getAttribute('data-message-text');
+                const name = button.getAttribute('data-name');
+                const location = button.getAttribute('data-location');
+                const directUrl = button.getAttribute('data-whatsapp-url');
+                const contactIndex = button.getAttribute('data-contact-index');
+                
+                // Debug logging
+                console.log('WhatsApp button clicked:', {
+                    phone: phone,
+                    message: message,
+                    name: name,
+                    location: location,
+                    messageLength: message ? message.length : 0,
+                    directUrl: directUrl,
+                    contactIndex: contactIndex
+                });
+                
+                // Validate we have required data
+                if (!phone) {
+                    console.error('No phone number found');
+                    alert('Error: No phone number found');
+                    return;
+                }
+
+                // **RATE LIMITING CHECK**
+                const rateLimitStatus = rateLimitManager.canSendMessage();
+                
+                // Function to actually send the message
+                const sendMessage = () => {
+                    // Auto-check the sent checkbox when WhatsApp is opened
+                    if (contactIndex !== null && contactIndex !== undefined) {
+                        const checkbox = document.getElementById(`sent-${contactIndex}`);
+                        if (checkbox) {
+                            checkbox.checked = true;
+                            // Add visual feedback
+                            const contactDiv = checkbox.closest('.border-b');
+                            if (contactDiv) {
+                                contactDiv.style.backgroundColor = '#f0fdf4';
+                                contactDiv.style.border = '1px solid #16a34a';
+                            }
+                        }
+                    }
+                    
+                    // Check if user wants to bypass privacy handler (for desktop app issues)
+                    const forceDirectURL = localStorage.getItem('force-direct-whatsapp') === 'true';
+                    
+                    // Try different methods based on availability and user preference
+                    if (message && message.trim() && !forceDirectURL) {
+                        console.log('Using WhatsApp handler with message');
+                        // Call the WhatsApp handler with clean data
+                        whatsappHandler.openWhatsApp(phone, message, { 
+                            name: name,
+                            location: location 
+                        });
+                    } else if (directUrl) {
+                        console.log('Using direct URL (WhatsApp Web to avoid desktop app issues)');
+                        // Use WhatsApp Web to avoid desktop app issues
+                        const webUrl = button.getAttribute('data-whatsapp-web') || directUrl;
+                        window.open(webUrl, '_blank', 'noopener,noreferrer');
+                    } else {
+                        console.log('Using phone-only fallback');
+                        // Last resort - just open WhatsApp Web chat
+                        window.open(`https://web.whatsapp.com/send?phone=${phone}`, '_blank', 'noopener,noreferrer');
+                    }
+                    
+                    // Record the message send
+                    rateLimitManager.recordMessage();
+                    updateRateLimitStatus();
+                };
+
+                // Check rate limits
+                if (!rateLimitStatus.canSend) {
+                    // Store the pending action for the rate limit manager
+                    rateLimitManager.pendingAction = sendMessage;
+                    
+                    // Show warning modal
+                    rateLimitManager.showRateLimitWarning(rateLimitStatus);
+                    return;
+                }
+
+                // Show warning if near limits (but still allow)
+                if (rateLimitStatus.isNearLimit && !rateLimitManager.warningShown) {
+                    rateLimitManager.warningShown = true;
+                    
+                    whatsappHandler.showNotification({
+                        type: 'warning',
+                        title: '⚠️ Approaching Rate Limit',
+                        message: `You've sent ${rateLimitStatus.messagesLastMinute} messages this minute. Slow down to avoid WhatsApp restrictions.`,
+                        duration: 8000
+                    });
+                    
+                    // Reset warning after 5 minutes
+                    setTimeout(() => {
+                        rateLimitManager.warningShown = false;
+                    }, 300000);
+                }
+                
+                // All checks passed, send the message
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html> 
