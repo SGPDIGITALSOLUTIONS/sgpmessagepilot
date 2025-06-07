@@ -35,7 +35,21 @@ jobs:
       # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
 
       - name: Zip artifact for deployment
-        run: zip release.zip ./* -r
+        run: |
+          # Create a list of files to exclude
+          cat > exclude.txt << EOL
+          .env*
+          .git*
+          venv/
+          __pycache__/
+          *.pyc
+          instance/
+          app/secret_key
+          app/logs/
+          EOL
+          
+          # Create zip excluding the files in exclude.txt
+          zip -r release.zip . -x@exclude.txt
 
       - name: Upload artifact for deployment jobs
         uses: actions/upload-artifact@v4
@@ -63,7 +77,6 @@ jobs:
 
       - name: Unzip artifact for deployment
         run: unzip release.zip
-
       
       - name: Login to Azure
         uses: azure/login@v2
