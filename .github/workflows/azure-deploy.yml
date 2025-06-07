@@ -14,6 +14,7 @@ env:
   AZURE_WEBAPP_NAME: sgp-messagepilot-dev
   PYTHON_VERSION: '3.9'
   AZURE_LOGIN_PRE_CLEANUP: true
+  AZURE_LOGIN_POST_CLEANUP: true
 
 jobs:
   build:
@@ -72,12 +73,19 @@ jobs:
         creds: '{"clientId": "${{ secrets.AZUREAPPSERVICE_CLIENTID_058089B3B653497796A09429B5143FF8 }}", "clientSecret": "${{ secrets.AZURE_CLIENT_SECRET }}", "subscriptionId": "${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_5501E3894B2E45DDB441BF1BF9B5DB92 }}", "tenantId": "${{ secrets.AZUREAPPSERVICE_TENANTID_9C29275C8240461BAFDEDE3A290A52B9 }}"}'
         enable-AzPSSession: true
     
-    - name: Azure CLI script
+    - name: Azure CLI Verification
       uses: azure/cli@v2
       with:
         azcliversion: latest
         inlineScript: |
           az account show
+    
+    - name: Azure PowerShell Verification
+      uses: azure/powershell@v2
+      with:
+        azPSVersion: "latest"
+        inlineScript: |
+          Get-AzContext
     
     - name: 'Deploy to Azure Web App'
       id: deploy-to-webapp
