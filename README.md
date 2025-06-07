@@ -1,10 +1,10 @@
-# SGP MessagePilot
+# WebStudio
 
 A powerful bulk WhatsApp messaging solution by SGP Digital Solutions.
 
 ## Overview
 
-SGP MessagePilot is a professional tool designed to streamline WhatsApp communication with multiple contacts. It allows you to easily generate personalized WhatsApp messages for multiple recipients while maintaining compliance with WhatsApp's terms of service.
+WebStudio is a professional tool designed to streamline WhatsApp communication with multiple contacts. It allows you to easily generate personalized WhatsApp messages for multiple recipients while maintaining privacy and compliance with WhatsApp's terms of service.
 
 ## Features
 
@@ -57,7 +57,7 @@ python -m flask run
 
 ## Compliance
 
-SGP MessagePilot is designed to be compliant with WhatsApp's terms of service:
+WebStudio is designed to be compliant with WhatsApp's terms of service:
 - No automation of message sending
 - Uses official WhatsApp click-to-chat links
 - Requires manual message sending

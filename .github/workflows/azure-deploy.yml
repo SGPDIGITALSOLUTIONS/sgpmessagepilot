@@ -1,4 +1,4 @@
-name: Deploy SGP MessagePilot to Azure
+name: Deploy WebStudio to Azure
 
 on:
   push:
