@@ -1,7 +1,7 @@
-# WebStudio - Preflight Checks
+# MessagePilot - Preflight Checks
 
 ## Overview
-This document contains a comprehensive list of checks to ensure WebStudio is functioning correctly. Use this checklist whenever making changes or troubleshooting issues.
+This document contains a comprehensive list of checks to ensure MessagePilot is functioning correctly. Use this checklist whenever making changes or troubleshooting issues.
 
 ---
 

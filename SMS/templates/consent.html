@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="referrer" content="no-referrer">
+    <title>SMS Consent & Compliance - MessagePilot</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        .sgp-green {
+            background-color: #123524;
+        }
+        .sgp-green-text {
+            color: #123524;
+        }
+        .sgp-green-hover:hover {
+            background-color: #1a4d35;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <header class="text-center mb-12">
+            <h1 class="text-4xl font-bold sgp-green-text mb-1">MessagePilot</h1>
+            <p class="text-sm text-gray-600 mb-2">by SGP Digital Solutions</p>
+            <p class="text-xl text-gray-600 mb-4">SMS Compliance & Consent</p>
+        </header>
+
+        <!-- Navigation -->
+        <div class="mb-6">
+            <a href="/sms" class="inline-flex items-center text-gray-600 hover:text-gray-800 transition duration-200">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                </svg>
+                Back to SMS Platform
+            </a>
+        </div>
+
+        <!-- Main Content -->
+        <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-8">
+            <!-- Introduction -->
+            <div class="mb-8">
+                <h2 class="text-2xl font-semibold mb-4">SMS Messaging Compliance</h2>
+                <p class="text-gray-700 mb-4">
+                    Before using our SMS messaging service, please ensure you understand and comply with the following regulations and requirements. These are designed to protect both senders and recipients while maintaining compliance with UK and EU regulations.
+                </p>
+            </div>
+
+            <!-- Key Requirements -->
+            <div class="mb-8">
+                <h3 class="text-xl font-semibold mb-4">Key Requirements</h3>
+                <div class="space-y-4">
+                    <div class="bg-blue-50 p-4 rounded-lg">
+                        <h4 class="font-medium text-blue-800 mb-2">Explicit Consent</h4>
+                        <p class="text-blue-700">Recipients must have given explicit consent to receive SMS messages from you. This consent must be:</p>
+                        <ul class="list-disc list-inside mt-2 text-blue-700 ml-4">
+                            <li>Freely given and specific</li>
+                            <li>Informed and unambiguous</li>
+                            <li>Recorded and documented</li>
+                            <li>Easy to withdraw at any time</li>
+                        </ul>
+                    </div>
+
+                    <div class="bg-green-50 p-4 rounded-lg">
+                        <h4 class="font-medium text-green-800 mb-2">Anti-Spam Requirements</h4>
+                        <ul class="list-disc list-inside text-green-700 ml-4">
+                            <li>Clear identification of the sender</li>
+                            <li>Valid opt-out mechanism in every message</li>
+                            <li>No unsolicited promotional messages</li>
+                            <li>Respect for timing restrictions (8am-9pm unless explicitly agreed)</li>
+                        </ul>
+                    </div>
+
+                    <div class="bg-purple-50 p-4 rounded-lg">
+                        <h4 class="font-medium text-purple-800 mb-2">Message Content Requirements</h4>
+                        <ul class="list-disc list-inside text-purple-700 ml-4">
+                            <li>Clear identification of commercial messages</li>
+                            <li>Accurate sender information</li>
+                            <li>Valid contact method for inquiries</li>
+                            <li>Opt-out instructions (e.g., "Reply STOP to unsubscribe")</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GDPR Compliance -->
+            <div class="mb-8">
+                <h3 class="text-xl font-semibold mb-4">GDPR Compliance</h3>
+                <div class="bg-gray-50 p-6 rounded-lg">
+                    <div class="space-y-4">
+                        <div>
+                            <h4 class="font-medium mb-2">Data Processing</h4>
+                            <p class="text-gray-700">We process phone numbers and related data in accordance with GDPR principles:</p>
+                            <ul class="list-disc list-inside text-gray-700 mt-2 ml-4">
+                                <li>Lawfulness, fairness, and transparency</li>
+                                <li>Purpose limitation</li>
+                                <li>Data minimization</li>
+                                <li>Accuracy</li>
+                                <li>Storage limitation</li>
+                                <li>Integrity and confidentiality</li>
+                            </ul>
+                        </div>
+
+                        <div>
+                            <h4 class="font-medium mb-2">Data Security</h4>
+                            <p class="text-gray-700">Your data is protected through:</p>
+                            <ul class="list-disc list-inside text-gray-700 mt-2 ml-4">
+                                <li>End-to-end encryption</li>
+                                <li>Secure data storage</li>
+                                <li>Regular security audits</li>
+                                <li>Access controls and monitoring</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Best Practices -->
+            <div class="mb-8">
+                <h3 class="text-xl font-semibold mb-4">Best Practices</h3>
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div class="bg-yellow-50 p-4 rounded-lg">
+                        <h4 class="font-medium text-yellow-800 mb-2">Do's</h4>
+                        <ul class="list-disc list-inside text-yellow-700 ml-4">
+                            <li>Keep messages clear and concise</li>
+                            <li>Include opt-out instructions</li>
+                            <li>Maintain accurate contact lists</li>
+                            <li>Respect recipient preferences</li>
+                            <li>Monitor delivery reports</li>
+                        </ul>
+                    </div>
+
+                    <div class="bg-red-50 p-4 rounded-lg">
+                        <h4 class="font-medium text-red-800 mb-2">Don'ts</h4>
+                        <ul class="list-disc list-inside text-red-700 ml-4">
+                            <li>Send messages without consent</li>
+                            <li>Hide or mislead about sender identity</li>
+                            <li>Ignore opt-out requests</li>
+                            <li>Send during unsociable hours</li>
+                            <li>Use aggressive or misleading content</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Consent Form -->
+            <div class="border-t pt-8 mt-8">
+                <h3 class="text-xl font-semibold mb-4">Compliance Confirmation</h3>
+                <form id="consent-form" class="space-y-4">
+                    <div class="flex items-start">
+                        <div class="flex items-center h-5">
+                            <input id="consent" type="checkbox" class="h-4 w-4 text-blue-600 border-gray-300 rounded">
+                        </div>
+                        <div class="ml-3">
+                            <label for="consent" class="font-medium text-gray-700">I confirm that:</label>
+                            <p class="text-gray-500 text-sm">
+                                - I have read and understood the compliance requirements<br>
+                                - I have obtained explicit consent from all recipients<br>
+                                - I will comply with all applicable regulations<br>
+                                - I will maintain accurate records of consent
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end">
+                        <button type="submit" id="proceed-button" class="sgp-green text-white px-6 py-2 rounded-md hover:sgp-green-hover transition duration-200" disabled>
+                            Proceed to SMS Platform
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const consentCheckbox = document.getElementById('consent');
+            const proceedButton = document.getElementById('proceed-button');
+            const consentForm = document.getElementById('consent-form');
+
+            // Enable/disable proceed button based on consent
+            consentCheckbox.addEventListener('change', function() {
+                proceedButton.disabled = !this.checked;
+            });
+
+            // Handle form submission
+            consentForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                if (consentCheckbox.checked) {
+                    // Send consent to server
+                    fetch('/sms/set-consent', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            window.location.href = '/sms';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Failed to set consent. Please try again.');
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html> 

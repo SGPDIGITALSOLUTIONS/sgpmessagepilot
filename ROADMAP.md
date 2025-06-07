@@ -1,4 +1,4 @@
-# WebStudio Development Roadmap
+# MessagePilot Development Roadmap
 
 ## 🚨 Phase 1: Immediate Wins (Core Value & Trust)
 **Goal**: Polish the MVP and reinforce trust with users.
