@@ -1,422 +1,107 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="referrer" content="no-referrer">
-    <title>WebStudio - Multi-Platform Messaging Solution</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <style>
-        .sgp-green {
-            background-color: #123524;
-        }
-        .sgp-green-text {
-            color: #123524;
-        }
-        .sgp-green-hover:hover {
-            background-color: #1a4d35;
-        }
-        .platform-card {
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-        .platform-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-        }
-        .platform-card.available {
-            border: 2px solid #10b981;
-        }
-        .platform-card.coming-soon {
-            border: 2px solid #d1d5db;
-            opacity: 0.7;
-        }
-        .platform-card.coming-soon:hover {
-            transform: none;
-            cursor: not-allowed;
-        }
-    </style>
-</head>
-<body class="bg-gray-100 min-h-screen">
-    <div class="container mx-auto px-4 py-8">
-        <!-- Header -->
-        <header class="text-center mb-12">
-            <h1 class="text-5xl font-bold sgp-green-text mb-1">WebStudio</h1>
-            <p class="text-sm text-gray-600 mb-3">by SGP Digital Solutions</p>
-            <p class="text-xl text-gray-600 mb-4">Multi-Platform Bulk Messaging Solution</p>
-            
-            <!-- Compliance Badges -->
-            <div class="flex justify-center space-x-4 mb-4">
-                <div class="bg-green-100 text-green-800 px-4 py-2 rounded-full text-sm font-medium flex items-center">
-                    <svg class="h-4 w-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                    </svg>
-                    GDPR Compliant
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Navigation Bar -->
+<nav class="bg-white shadow-lg">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16">
+            <div class="flex">
+                <div class="flex-shrink-0 flex items-center">
+                    <h1 class="text-2xl font-bold sgp-green-text">MessagePilot</h1>
+                    <p class="text-sm text-gray-600 ml-2">by SGP Digital Solutions</p>
                 </div>
-                <div class="bg-blue-100 text-blue-800 px-4 py-2 rounded-full text-sm font-medium flex items-center">
-                    <svg class="h-4 w-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"></path>
-                    </svg>
-                    Privacy-First
-                </div>
-                <div class="bg-purple-100 text-purple-800 px-4 py-2 rounded-full text-sm font-medium flex items-center">
-                    <svg class="h-4 w-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                    </svg>
-                    Enterprise Grade
+                <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+                    <a href="{{ url_for('index') }}" class="border-green-500 text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                        Home
+                    </a>
+                    <a href="{{ url_for('whatsapp') }}" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                        WhatsApp
+                    </a>
+                    {% if 'sms.index' in config.get('ENABLED_ROUTES', []) %}
+                    <a href="{{ url_for('sms.index') }}" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                        SMS
+                    </a>
+                    {% endif %}
                 </div>
             </div>
-            
-            <div class="text-center">
-                <a href="/privacy" class="text-sm text-gray-500 hover:text-gray-700 underline">
-                    View Privacy Policy & Compliance Details
-                </a>
-            </div>
-        </header>
-
-        <!-- Platform Selection -->
-        <div class="max-w-6xl mx-auto">
-            <div class="text-center mb-12">
-                <h2 class="text-3xl font-bold text-gray-800 mb-4">Choose Your Messaging Platform</h2>
-                <p class="text-lg text-gray-600 max-w-2xl mx-auto">
-                    Select the platform you'd like to use for bulk messaging. Each platform has been optimized for privacy, compliance, and ease of use.
-                </p>
-            </div>
-
-            <!-- Platform Cards -->
-            <div class="grid md:grid-cols-3 gap-8 mb-12">
-                <!-- WhatsApp Card -->
-                <div class="platform-card available bg-white rounded-xl shadow-lg p-8" onclick="selectWhatsApp()">
-                    <div class="text-center">
-                        <!-- WhatsApp Icon -->
-                        <div class="w-20 h-20 mx-auto mb-6 bg-green-100 rounded-full flex items-center justify-center">
-                            <svg class="w-12 h-12 text-green-600" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.488"/>
-                            </svg>
-                        </div>
-                        
-                        <h3 class="text-2xl font-bold text-gray-800 mb-3">WhatsApp</h3>
-                        <p class="text-gray-600 mb-6">Send personalized messages via WhatsApp with privacy-preserving methods and GDPR compliance.</p>
-                        
-                        <!-- Features -->
-                        <div class="space-y-2 mb-6">
-                            <div class="flex items-center justify-center text-sm text-green-600">
-                                <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-                                </svg>
-                                Privacy-First Design
-                            </div>
-                            <div class="flex items-center justify-center text-sm text-green-600">
-                                <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-                                </svg>
-                                Bulk Message Templates
-                            </div>
-                            <div class="flex items-center justify-center text-sm text-green-600">
-                                <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-                                </svg>
-                                CSV/Excel Import
-                            </div>
-                        </div>
-                        
-                        <div class="bg-green-100 text-green-800 px-4 py-2 rounded-full text-sm font-medium">
-                            Available Now
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Telegram Card -->
-                <div class="platform-card coming-soon bg-white rounded-xl shadow-lg p-8">
-                    <div class="text-center">
-                        <!-- Telegram Icon -->
-                        <div class="w-20 h-20 mx-auto mb-6 bg-blue-100 rounded-full flex items-center justify-center">
-                            <svg class="w-12 h-12 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
-                            </svg>
-                        </div>
-                        
-                        <h3 class="text-2xl font-bold text-gray-400 mb-3">Telegram</h3>
-                        <p class="text-gray-400 mb-6">Secure messaging with advanced features and bot integration capabilities.</p>
-                        
-                        <!-- Features -->
-                        <div class="space-y-2 mb-6">
-                            <div class="flex items-center justify-center text-sm text-gray-400">
-                                <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-                                </svg>
-                                Bot Integration
-                            </div>
-                            <div class="flex items-center justify-center text-sm text-gray-400">
-                                <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-                                </svg>
-                                Channel Broadcasting
-                            </div>
-                            <div class="flex items-center justify-center text-sm text-gray-400">
-                                <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-                                </svg>
-                                Media Support
-                            </div>
-                        </div>
-                        
-                        <div class="bg-gray-200 text-gray-600 px-4 py-2 rounded-full text-sm font-medium">
-                            Coming Soon
-                        </div>
-                    </div>
-                </div>
-
-                <!-- SMS Card -->
-                <div class="platform-card coming-soon bg-white rounded-xl shadow-lg p-8">
-                    <div class="text-center">
-                        <!-- SMS Icon -->
-                        <div class="w-20 h-20 mx-auto mb-6 bg-purple-100 rounded-full flex items-center justify-center">
-                            <svg class="w-12 h-12 text-purple-600" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/>
-                            </svg>
-                        </div>
-                        
-                        <h3 class="text-2xl font-bold text-gray-400 mb-3">SMS</h3>
-                        <p class="text-gray-400 mb-6">Traditional SMS messaging with carrier integration and delivery tracking.</p>
-                        
-                        <!-- Features -->
-                        <div class="space-y-2 mb-6">
-                            <div class="flex items-center justify-center text-sm text-gray-400">
-                                <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-                                </svg>
-                                Carrier Integration
-                            </div>
-                            <div class="flex items-center justify-center text-sm text-gray-400">
-                                <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-                                </svg>
-                                Delivery Tracking
-                            </div>
-                            <div class="flex items-center justify-center text-sm text-gray-400">
-                                <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-                                </svg>
-                                Global Reach
-                            </div>
-                        </div>
-                        
-                        <div class="bg-gray-200 text-gray-600 px-4 py-2 rounded-full text-sm font-medium">
-                            Coming Soon
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Features Section -->
-            <div class="bg-white rounded-xl shadow-lg p-8 mb-12">
-                <h3 class="text-2xl font-bold text-center text-gray-800 mb-8">Why Choose WebStudio?</h3>
-                
-                <div class="grid md:grid-cols-3 gap-8">
-                    <div class="text-center">
-                        <div class="w-16 h-16 mx-auto mb-4 bg-green-100 rounded-full flex items-center justify-center">
-                            <svg class="w-8 h-8 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"></path>
-                            </svg>
-                        </div>
-                        <h4 class="text-lg font-semibold text-gray-800 mb-2">Privacy-First Design</h4>
-                        <p class="text-gray-600">Built with GDPR compliance and privacy-preserving methods from the ground up.</p>
-                    </div>
-                    
-                    <div class="text-center">
-                        <div class="w-16 h-16 mx-auto mb-4 bg-blue-100 rounded-full flex items-center justify-center">
-                            <svg class="w-8 h-8 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" clip-rule="evenodd"></path>
-                            </svg>
-                        </div>
-                        <h4 class="text-lg font-semibold text-gray-800 mb-2">Multi-Platform Support</h4>
-                        <p class="text-gray-600">Unified interface for multiple messaging platforms with consistent privacy standards.</p>
-                    </div>
-                    
-                    <div class="text-center">
-                        <div class="w-16 h-16 mx-auto mb-4 bg-purple-100 rounded-full flex items-center justify-center">
-                            <svg class="w-8 h-8 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                            </svg>
-                        </div>
-                        <h4 class="text-lg font-semibold text-gray-800 mb-2">Enterprise Grade</h4>
-                        <p class="text-gray-600">Professional-grade security, compliance, and reliability for business use.</p>
+            <div class="hidden sm:ml-6 sm:flex sm:items-center">
+                <div class="ml-3 relative">
+                    <div class="flex items-center">
+                        {% if current_user.is_authenticated %}
+                            <span class="text-sm text-gray-700 mr-4">Welcome, {{ current_user.first_name }}</span>
+                            <a href="{{ url_for('auth.profile') }}" class="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium">Profile</a>
+                            <a href="{{ url_for('auth.logout') }}" class="sgp-green text-white hover:sgp-green-hover px-3 py-2 rounded-md text-sm font-medium">Logout</a>
+                        {% else %}
+                            <a href="{{ url_for('auth.login') }}" class="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium">Login</a>
+                            <a href="{{ url_for('auth.register') }}" class="sgp-green text-white hover:sgp-green-hover px-3 py-2 rounded-md text-sm font-medium">Register</a>
+                        {% endif %}
                     </div>
                 </div>
             </div>
         </div>
-
-        <!-- WhatsApp Consent Modal -->
-        <div id="whatsapp-consent-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
-            <div class="bg-white rounded-xl max-w-2xl w-full max-h-90vh overflow-y-auto">
-                <div class="p-6">
-                    <div class="flex items-center mb-6">
-                        <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mr-4">
-                            <svg class="w-8 h-8 text-green-600" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.488"/>
-                            </svg>
-                        </div>
-                        <div>
-                            <h3 class="text-2xl font-bold text-gray-800">WhatsApp Platform Consent</h3>
-                            <p class="text-gray-600">Please review and accept the terms for WhatsApp messaging</p>
-                        </div>
-                    </div>
-
-                    <div class="space-y-6">
-                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                            <h4 class="font-semibold text-blue-800 mb-2">Data Processing for WhatsApp</h4>
-                            <p class="text-sm text-blue-700">
-                                By proceeding with WhatsApp messaging, you consent to processing contact data (names, phone numbers, locations) 
-                                for the purpose of generating WhatsApp message links. We use privacy-preserving methods that minimize data exposure.
-                            </p>
-                        </div>
-
-                        <div class="space-y-4">
-                            <h4 class="font-semibold text-gray-800">WhatsApp-Specific Privacy Measures:</h4>
-                            <ul class="space-y-2 text-sm text-gray-700">
-                                <li class="flex items-start">
-                                    <svg class="w-4 h-4 text-green-600 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-                                    </svg>
-                                    <span><strong>Clipboard Method:</strong> Messages are copied to your clipboard, only phone numbers are shared in URLs</span>
-                                </li>
-                                <li class="flex items-start">
-                                    <svg class="w-4 h-4 text-green-600 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-                                    </svg>
-                                    <span><strong>No URL Data Exposure:</strong> Personal information is never included in browser history or server logs</span>
-                                </li>
-                                <li class="flex items-start">
-                                    <svg class="w-4 h-4 text-green-600 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-                                    </svg>
-                                    <span><strong>Message Preview:</strong> Review and edit all messages before sending</span>
-                                </li>
-                                <li class="flex items-start">
-                                    <svg class="w-4 h-4 text-green-600 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-                                    </svg>
-                                    <span><strong>No Persistent Storage:</strong> All data is processed in memory and automatically deleted</span>
-                                </li>
-                            </ul>
-                        </div>
-
-                        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                            <h4 class="font-semibold text-yellow-800 mb-2">WhatsApp Terms Compliance</h4>
-                            <p class="text-sm text-yellow-700">
-                                You must ensure you have proper consent to message all contacts and comply with WhatsApp's Terms of Service. 
-                                This tool generates manual message links only - no automation is provided.
-                            </p>
-                        </div>
-
-                        <div class="space-y-3">
-                            <label class="flex items-start">
-                                <input type="checkbox" id="consent-data-processing" class="mt-1 mr-3">
-                                <span class="text-sm text-gray-700">
-                                    I consent to processing contact data for WhatsApp messaging purposes as described above
-                                </span>
-                            </label>
-                            
-                            <label class="flex items-start">
-                                <input type="checkbox" id="consent-whatsapp-terms" class="mt-1 mr-3">
-                                <span class="text-sm text-gray-700">
-                                    I confirm I have proper consent to message all contacts and will comply with WhatsApp's Terms of Service
-                                </span>
-                            </label>
-                            
-                            <label class="flex items-start">
-                                <input type="checkbox" id="consent-privacy-policy" class="mt-1 mr-3">
-                                <span class="text-sm text-gray-700">
-                                    I have read and agree to the <a href="/privacy" target="_blank" class="text-blue-600 underline">Privacy Policy</a>
-                                </span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <div class="flex justify-end space-x-4 mt-8 pt-6 border-t">
-                        <button onclick="closeConsentModal()" class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition duration-200">
-                            Cancel
-                        </button>
-                        <button id="proceed-whatsapp" onclick="proceedToWhatsApp()" disabled class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition duration-200">
-                            Proceed to WhatsApp Tool
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Footer -->
-        <footer class="text-center text-gray-600 text-sm mt-8">
-            <p class="mb-2">WebStudio - Multi-Platform Messaging Solution</p>
-            <div class="mt-4 space-x-4">
-                <a href="/privacy" class="text-gray-500 hover:text-gray-700 underline">Privacy Policy</a>
-                <a href="/terms" class="text-gray-500 hover:text-gray-700 underline">Terms of Service</a>
-            </div>
-        </footer>
     </div>
+</nav>
 
-    <script>
-        function selectWhatsApp() {
-            document.getElementById('whatsapp-consent-modal').classList.remove('hidden');
-        }
-
-        function closeConsentModal() {
-            document.getElementById('whatsapp-consent-modal').classList.add('hidden');
-            // Reset checkboxes
-            document.getElementById('consent-data-processing').checked = false;
-            document.getElementById('consent-whatsapp-terms').checked = false;
-            document.getElementById('consent-privacy-policy').checked = false;
-            updateProceedButton();
-        }
-
-        function updateProceedButton() {
-            const dataProcessing = document.getElementById('consent-data-processing').checked;
-            const whatsappTerms = document.getElementById('consent-whatsapp-terms').checked;
-            const privacyPolicy = document.getElementById('consent-privacy-policy').checked;
+<!-- Main Content -->
+<div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="rounded-md p-4 mb-4 {% if category == 'error' %}bg-red-50 text-red-700{% else %}bg-green-50 text-green-700{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    
+    <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
+        <div class="p-6">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">Welcome to MessagePilot</h2>
+            <p class="text-gray-600 mb-4">
+                MessagePilot is your all-in-one solution for managing WhatsApp and SMS communications. Choose your platform below to get started.
+            </p>
             
-            const proceedButton = document.getElementById('proceed-whatsapp');
-            proceedButton.disabled = !(dataProcessing && whatsappTerms && privacyPolicy);
-        }
+            <div class="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2">
+                <div class="border rounded-lg p-6 hover:shadow-lg transition duration-200">
+                    <h3 class="text-lg font-semibold mb-2">WhatsApp Platform</h3>
+                    <p class="text-gray-600 mb-4">Send personalized WhatsApp messages to your contacts with our easy-to-use interface.</p>
+                    <a href="{{ url_for('whatsapp') }}" class="inline-flex items-center sgp-green text-white px-4 py-2 rounded-md hover:sgp-green-hover">
+                        Get Started
+                        <svg class="ml-2 -mr-1 w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
+                    </a>
+                </div>
+                
+                {% if 'sms.index' in config.get('ENABLED_ROUTES', []) %}
+                <div class="border rounded-lg p-6 hover:shadow-lg transition duration-200">
+                    <h3 class="text-lg font-semibold mb-2">SMS Platform</h3>
+                    <p class="text-gray-600 mb-4">Send SMS messages to your contacts with our powerful SMS integration.</p>
+                    <a href="{{ url_for('sms.index') }}" class="inline-flex items-center sgp-green text-white px-4 py-2 rounded-md hover:sgp-green-hover">
+                        Get Started
+                        <svg class="ml-2 -mr-1 w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
 
-        function proceedToWhatsApp() {
-            // Store consent with timestamp
-            const consentData = {
-                platform: 'whatsapp',
-                dataProcessing: true,
-                whatsappTerms: true,
-                privacyPolicy: true,
-                timestamp: new Date().toISOString(),
-                userAgent: navigator.userAgent
-            };
-            
-            localStorage.setItem('platform-consent-whatsapp', JSON.stringify(consentData));
-            
-            // Redirect to WhatsApp tool
-            window.location.href = '/whatsapp';
-        }
-
-        // Add event listeners for checkboxes
-        document.addEventListener('DOMContentLoaded', function() {
-            const checkboxes = ['consent-data-processing', 'consent-whatsapp-terms', 'consent-privacy-policy'];
-            checkboxes.forEach(id => {
-                document.getElementById(id).addEventListener('change', updateProceedButton);
-            });
-        });
-
-        // Close modal when clicking outside
-        document.getElementById('whatsapp-consent-modal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeConsentModal();
-            }
-        });
-
-        // Close modal with Escape key
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                closeConsentModal();
-            }
-        });
-    </script>
-</body>
-</html> 
+<!-- Footer -->
+<footer class="bg-white border-t mt-12">
+    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center">
+            <div class="text-gray-500 text-sm">
+                &copy; {{ now.year }} SGP Digital Solutions. All rights reserved.
+            </div>
+            <div class="space-x-6">
+                <a href="{{ url_for('privacy') }}" class="text-gray-500 hover:text-gray-700 text-sm">Privacy Policy</a>
+                <a href="{{ url_for('terms') }}" class="text-gray-500 hover:text-gray-700 text-sm">Terms of Service</a>
+            </div>
+        </div>
+    </div>
+</footer>
+{% endblock %} 

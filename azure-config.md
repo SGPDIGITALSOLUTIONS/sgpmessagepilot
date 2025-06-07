@@ -1,4 +1,4 @@
-# Azure Deployment Guide for WebStudio
+# Azure Deployment Guide for MessagePilot
 
 ## 🚀 Quick Start Deployment
 

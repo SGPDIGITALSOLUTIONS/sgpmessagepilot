@@ -1,15 +1,20 @@
-from flask import Flask, render_template, request, jsonify, url_for, redirect, Response
+from flask import Flask, render_template, request, jsonify, url_for, redirect, Response, session
+from flask_login import LoginManager, login_required, current_user
 import pandas as pd
 import os
 from werkzeug.utils import secure_filename
 import urllib.parse
 import logging
 import traceback
-from datetime import datetime
+from datetime import datetime, timedelta
 from logging.handlers import RotatingFileHandler
 from functools import wraps
 import re
 import sys
+import secrets
+from .config import Config
+from .models.user import db, User
+from .auth.routes import auth
 
 # Security headers
 def security_headers(response: Response) -> Response:
@@ -96,8 +101,190 @@ def log_debug_info(message, extra_info=None):
 app = Flask(__name__)
 app.debug = True  # Enable Flask debug mode
 
+# Load configuration
+app.config.from_object(Config)
+
+# Initialize SQLAlchemy
+db.init_app(app)
+
+# Initialize Flask-Login
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'auth.login'
+login_manager.login_message = 'Please log in to access MessagePilot.'
+login_manager.login_message_category = 'info'
+
+@login_manager.user_loader
+def load_user(id):
+    return User.query.get(int(id))
+
+# Register blueprints
+app.register_blueprint(auth, url_prefix='/auth')
+
 # Apply security headers to all responses
 app.after_request(security_headers)
+
+# Create database tables
+with app.app_context():
+    db.create_all()
+
+# Protect all routes with login_required
+@app.before_request
+def require_login():
+    public_endpoints = [
+        'auth.login',
+        'auth.register',
+        'static',
+        'auth.reset_password_request',
+        'auth.reset_password'
+    ]
+    
+    if not current_user.is_authenticated:
+        if request.endpoint and \
+           request.endpoint not in public_endpoints and \
+           not request.endpoint.startswith('static.'):
+            return redirect(url_for('auth.login'))
+
+# Main routes
+@app.route('/')
+@login_required
+def index():
+    """Render the homepage"""
+    return render_template('index.html')
+
+@app.route('/whatsapp')
+@login_required
+def whatsapp():
+    """Render the WhatsApp platform page"""
+    return render_template('whatsapp.html')
+
+@app.route('/privacy')
+def privacy():
+    """Render the privacy policy page"""
+    return render_template('privacy.html')
+
+@app.route('/terms')
+def terms():
+    """Render the terms of service page"""
+    return render_template('terms.html')
+
+@app.route('/upload', methods=['POST'])
+@login_required
+def upload_file():
+    """Handle file uploads"""
+    try:
+        # Validate file presence
+        if 'file' not in request.files:
+            return jsonify({
+                'success': False,
+                'error': 'No file uploaded'
+            }), 400
+            
+        file = request.files['file']
+        
+        # Validate filename
+        if file.filename == '':
+            return jsonify({
+                'success': False,
+                'error': 'No file selected'
+            }), 400
+            
+        if not allowed_file(file.filename):
+            return jsonify({
+                'success': False,
+                'error': 'Invalid file type'
+            }), 400
+            
+        # Secure the filename and save
+        filename = secure_filename(file.filename)
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(filepath)
+        
+        # Process the file
+        results = process_uploaded_file(filepath)
+        
+        return jsonify({
+            'success': True,
+            'filename': filename,
+            'results': results
+        })
+        
+    except Exception as e:
+        logger.error(f"Error in upload_file: {str(e)}\n{traceback.format_exc()}")
+        return jsonify({
+            'success': False,
+            'error': 'Internal server error'
+        }), 500
+
+@app.route('/generate_links', methods=['POST'])
+@login_required
+def generate_links():
+    """Generate WhatsApp links from uploaded data"""
+    try:
+        data = request.get_json()
+        
+        if not data or 'rows' not in data:
+            return jsonify({
+                'success': False,
+                'error': 'No data provided'
+            }), 400
+            
+        results = []
+        for row in data['rows']:
+            try:
+                # Create message for this contact
+                message = create_message(row)
+                
+                # Format phone number
+                phone = process_phone_number(row.get('Phone', ''))
+                if not phone:
+                    phone = process_phone_number(row.get('Mobile', ''))
+                if not phone:
+                    phone = process_phone_number(row.get('Work Phone', ''))
+                    
+                if not phone:
+                    results.append({
+                        'success': False,
+                        'error': 'No valid phone number found',
+                        'row': row
+                    })
+                    continue
+                    
+                # Generate WhatsApp link
+                whatsapp_link = f"https://wa.me/{phone}?text={urllib.parse.quote(message)}"
+                
+                results.append({
+                    'success': True,
+                    'phone': phone,
+                    'message': message,
+                    'link': whatsapp_link,
+                    'row': row
+                })
+                
+            except Exception as e:
+                logger.error(f"Error processing row: {str(e)}\n{traceback.format_exc()}")
+                results.append({
+                    'success': False,
+                    'error': str(e),
+                    'row': row
+                })
+                
+        return jsonify({
+            'success': True,
+            'results': results
+        })
+        
+    except Exception as e:
+        logger.error(f"Error in generate_links: {str(e)}\n{traceback.format_exc()}")
+        return jsonify({
+            'success': False,
+            'error': 'Internal server error'
+        }), 500
+
+# Load configuration from Config class
+app.config.from_object(Config)
+
+# All session configuration is now handled in Config class
 
 # Secure configuration
 app.config['UPLOAD_FOLDER'] = os.path.join('app', 'uploads')
@@ -431,14 +618,6 @@ def process_uploaded_file(filepath):
         })
         return {'error': error_msg}, 500
 
-@app.route('/')
-def index():
-    return render_template('index.html')
-
-@app.route('/whatsapp')
-def whatsapp():
-    return render_template('whatsapp.html')
-
 def format_error_message(error):
     """Format error message to be more user-friendly and detailed"""
     try:
@@ -463,150 +642,6 @@ def format_error_message(error):
     except Exception as e:
         logger.error(f"Error in format_error_message: {str(e)}")
         return str(error)
-
-@app.route('/upload', methods=['POST'])
-def upload_file():
-    try:
-        log_debug_info("Received upload request", {
-            "content_type": request.content_type,
-            "files": list(request.files.keys()) if request.files else []
-        })
-
-        # Validate file presence
-        if 'file' not in request.files:
-            log_debug_info("No file in request")
-            return jsonify({'error': 'No file uploaded'}), 400
-            
-        file = request.files['file']
-        if not file or file.filename == '':
-            log_debug_info("Empty file or filename")
-            return jsonify({'error': 'No file selected'}), 400
-            
-        # Validate file type
-        filename = secure_filename(file.filename)
-        if not filename.endswith(('.xlsx', '.xls', '.csv')):
-            log_debug_info("Invalid file type", {"filename": filename})
-            return jsonify({'error': 'Invalid file type. Please upload an Excel or CSV file.'}), 400
-
-        # Validate file size
-        try:
-            validate_file_size(file)
-        except ValueError as e:
-            log_debug_info("File size validation failed", {"error": str(e)})
-            return jsonify({'error': str(e)}), 400
-
-        # Save the file temporarily
-        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        file.save(filepath)
-        log_debug_info("File saved temporarily", {"filepath": filepath})
-
-        try:
-            # Process the file
-            log_debug_info("About to call process_uploaded_file", {"filepath": filepath})
-            result = process_uploaded_file(filepath)
-            log_debug_info("process_uploaded_file returned", {
-                "result_type": type(result).__name__,
-                "result_length": len(result) if isinstance(result, (tuple, list)) else "not a sequence",
-                "result_content": str(result)[:200] + "..." if len(str(result)) > 200 else str(result)
-            })
-            
-            if isinstance(result, tuple) and len(result) == 2:
-                response, status_code = result
-                log_debug_info("File processing completed", {
-                    "status_code": status_code,
-                    "result_type": type(response).__name__
-                })
-                return jsonify(response), status_code
-            else:
-                log_debug_info("Invalid result format from process_uploaded_file", {
-                    "result_type": type(result).__name__,
-                    "result_content": str(result)
-                })
-                return jsonify({'error': 'Internal server error: invalid result format'}), 500
-        except Exception as e:
-            error_msg = f"File processing error: {str(e)}"
-            log_debug_info(error_msg, {
-                "error": str(e),
-                "traceback": traceback.format_exc()
-            })
-            return jsonify({'error': error_msg}), 500
-        finally:
-            # Clean up - delete the file after processing
-            if os.path.exists(filepath):
-                os.remove(filepath)
-                log_debug_info("Temporary file deleted", {"filepath": filepath})
-                
-    except Exception as e:
-        error_msg = f"Upload error: {str(e)}"
-        log_debug_info(error_msg, {
-            "error": str(e),
-            "traceback": traceback.format_exc()
-        })
-        return jsonify({'error': error_msg}), 500
-
-@app.route('/generate_links', methods=['POST'])
-def generate_links():
-    try:
-        data = request.json
-        message_template = data.get('message_template', '')
-        selected_contacts = data.get('selected_contacts', [])
-        
-        logger.info(f"Generate links called with {len(selected_contacts)} contacts")
-        logger.info(f"Message template: {message_template[:100]}...")
-        
-        results = []
-        for contact in selected_contacts:
-            # Safely get values to avoid NaN issues
-            first_name = str(contact.get('First Name', ''))
-            last_name = str(contact.get('Last Name', ''))
-            full_name = str(contact.get('full_name', ''))
-            location = str(contact.get('Location', 'N/A'))
-            engagement_date = str(contact.get('Newest Engagement Date', 'N/A'))
-            volunteer_url = str(contact.get('Personal Volunteering Site URL', ''))
-            best_phone = contact.get('best_phone', '')
-            
-            logger.info(f"Processing contact: {full_name}, phone: {best_phone}")
-            
-            # Replace merge fields in the message
-            message = message_template.replace('{first_name}', first_name)
-            message = message.replace('{last_name}', last_name)
-            message = message.replace('{full_name}', full_name)
-            message = message.replace('{location}', location)
-            message = message.replace('{engagement_date}', engagement_date)
-            message = message.replace('{volunteer_url}', volunteer_url)
-            
-            whatsapp_link = f"https://wa.me/{best_phone}?text={urllib.parse.quote(message)}"
-            
-            result = {
-                'name': full_name,
-                'location': location,
-                'phone': best_phone,
-                'best_phone': best_phone,  # Add this field for frontend consistency
-                'engagement_date': engagement_date,
-                'volunteer_url': volunteer_url,
-                'whatsapp_link': whatsapp_link,
-                'message': message
-            }
-            
-            logger.info(f"Created result for {full_name}: phone={result['best_phone']}, message_length={len(message)}")
-            results.append(result)
-        
-        logger.info(f"Returning {len(results)} results")
-        return jsonify({'results': results})
-    except Exception as e:
-        logger.error(f"Error in generate_links: {str(e)}")
-        logger.error(traceback.format_exc())
-        return jsonify({'error': str(e)}), 400
-
-# Add privacy notice route
-@app.route('/privacy')
-def privacy():
-    return render_template('privacy.html', current_date=datetime.now().strftime('%B %d, %Y'))
-
-# Add terms of service route
-@app.route('/terms')
-def terms():
-    return render_template('terms.html')
 
 def sanitize_filename(filename):
     """Additional filename sanitization beyond secure_filename"""

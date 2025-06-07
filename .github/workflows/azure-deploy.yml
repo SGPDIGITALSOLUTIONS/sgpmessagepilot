@@ -1,4 +1,4 @@
-name: Deploy WebStudio to Azure
+name: Deploy MessagePilot to Azure
 
 on:
   push:
