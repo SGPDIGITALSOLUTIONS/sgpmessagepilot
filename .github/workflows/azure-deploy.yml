@@ -67,10 +67,14 @@ jobs:
         
     - name: Login to Azure
       uses: azure/login@v2
+      env:
+        AZURE_LOGIN_PRE_CLEANUP: true
       with:
         client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_058089B3B653497796A09429B5143FF8 }}
         tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_9C29275C8240461BAFDEDE3A290A52B9 }}
         subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_5501E3894B2E45DDB441BF1BF9B5DB92 }}
+        enable-AzPSSession: true
+        auth-type: 'SERVICE_PRINCIPAL'
     
     - name: 'Deploy to Azure Web App'
       id: deploy-to-webapp
