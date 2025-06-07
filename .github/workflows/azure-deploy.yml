@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [ main ]
 
+permissions:
+  id-token: write
+  contents: read
+
 env:
   AZURE_WEBAPP_NAME: sgp-messagepilot-dev
   PYTHON_VERSION: '3.9'
@@ -67,6 +71,7 @@ jobs:
         client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_058089B3B653497796A09429B5143FF8 }}
         tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_9C29275C8240461BAFDEDE3A290A52B9 }}
         subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_5501E3894B2E45DDB441BF1BF9B5DB92 }}
+        auth-type: 'oidc'
     
     - name: 'Deploy to Azure Web App'
       id: deploy-to-webapp
