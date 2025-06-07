@@ -5,10 +5,11 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+  workflow_dispatch:  # Allow manual triggering
 
 permissions:
-  id-token: write
-  contents: read
+  id-token: write  # Required for OIDC
+  contents: read   # Required for actions/checkout
 
 env:
   AZURE_WEBAPP_NAME: sgp-messagepilot-dev
@@ -21,10 +22,10 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4  # Updated to v4
     
     - name: Set up Python version
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5  # Updated to v5
       with:
         python-version: ${{ env.PYTHON_VERSION }}
     
@@ -52,6 +53,10 @@ jobs:
         path: |
           . 
           !venv/
+          !.git/
+          !.github/
+          !__pycache__/
+          !*.pyc
 
   deploy:
     runs-on: ubuntu-latest
@@ -81,6 +86,7 @@ jobs:
         azcliversion: latest
         inlineScript: |
           az account show
+          az webapp list --query "[?name=='${{ env.AZURE_WEBAPP_NAME }}']"
     
     - name: Azure PowerShell Verification
       uses: azure/powershell@v2
@@ -88,11 +94,12 @@ jobs:
         azPSVersion: "latest"
         inlineScript: |
           Get-AzContext
+          Get-AzWebApp -Name $env:AZURE_WEBAPP_NAME
     
     - name: 'Deploy to Azure Web App'
       id: deploy-to-webapp
       uses: azure/webapps-deploy@v3
       with:
         app-name: ${{ env.AZURE_WEBAPP_NAME }}
-        publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+        slot-name: 'Production'  # Added explicit slot name
         startup-command: 'cd $APP_PATH && gunicorn --bind=0.0.0.0 --timeout 600 --workers=4 startup:app' 
