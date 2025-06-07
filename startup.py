@@ -1,8 +1,8 @@
 import os
 from app.app import app
 
-# Create the Flask application instance
-app = create_app()
+# Use the imported Flask application instance
+# No need to create it again since we're importing it directly
 
 if __name__ == "__main__":
     # Get port from environment variable (Azure sets this)
