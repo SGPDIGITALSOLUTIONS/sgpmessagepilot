@@ -34,22 +34,21 @@ jobs:
         
       # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
 
+      - name: Clean up unnecessary files
+        run: |
+          rm -rf .env* || true
+          rm -rf .git* || true
+          rm -rf venv/ || true
+          rm -rf __pycache__/ || true
+          rm -rf *.pyc || true
+          rm -rf instance/ || true
+          rm -rf app/secret_key || true
+          rm -rf app/logs/ || true
+          find . -type d -name "__pycache__" -exec rm -rf {} + || true
+
       - name: Zip artifact for deployment
         run: |
-          # Create a list of files to exclude
-          cat > exclude.txt << EOL
-          .env*
-          .git*
-          venv/
-          __pycache__/
-          *.pyc
-          instance/
-          app/secret_key
-          app/logs/
-          EOL
-          
-          # Create zip excluding the files in exclude.txt
-          zip -r release.zip . -x@exclude.txt
+          zip -r release.zip . -x "venv/*" ".*" "__pycache__/*" "*.pyc"
 
       - name: Upload artifact for deployment jobs
         uses: actions/upload-artifact@v4
