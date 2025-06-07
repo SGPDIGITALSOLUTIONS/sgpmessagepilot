@@ -69,13 +69,8 @@ jobs:
     - name: Login to Azure
       uses: azure/login@v2
       with:
-        client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_058089B3B653497796A09429B5143FF8 }}
-        tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_9C29275C8240461BAFDEDE3A290A52B9 }}
-        subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_5501E3894B2E45DDB441BF1BF9B5DB92 }}
+        creds: '{"clientId": "${{ secrets.AZUREAPPSERVICE_CLIENTID_058089B3B653497796A09429B5143FF8 }}", "clientSecret": "${{ secrets.AZURE_CLIENT_SECRET }}", "subscriptionId": "${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_5501E3894B2E45DDB441BF1BF9B5DB92 }}", "tenantId": "${{ secrets.AZUREAPPSERVICE_TENANTID_9C29275C8240461BAFDEDE3A290A52B9 }}"}'
         enable-AzPSSession: true
-        auth-type: 'SERVICE_PRINCIPAL'
-        allow-no-subscriptions: false
-        audience: 'api://AzureADTokenExchange'
     
     - name: Azure CLI script
       uses: azure/cli@v2
