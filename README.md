@@ -15,6 +15,7 @@ SGP MessagePilot is a professional tool designed to streamline WhatsApp communic
 - No data storage - immediate file deletion
 - Compliant with WhatsApp's terms of service
 - User-friendly interface
+- Azure cloud deployment
 
 ## Security Features
 
@@ -24,6 +25,7 @@ SGP MessagePilot is a professional tool designed to streamline WhatsApp communic
 - Secure URL handling
 - Comprehensive security headers
 - Input validation and sanitization
+- Azure App Service security
 
 ## Requirements
 
