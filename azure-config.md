@@ -1,4 +1,4 @@
-# Azure Deployment Guide for SGP MessagePilot
+# Azure Deployment Guide for WebStudio
 
 ## 🚀 Quick Start Deployment
 
