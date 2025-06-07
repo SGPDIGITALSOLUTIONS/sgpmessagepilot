@@ -41,6 +41,14 @@ class Config:
     ADMIN_EMAIL = os.getenv('ADMIN_EMAIL')
     ADMIN_PASSWORD = os.getenv('ADMIN_PASSWORD')
     
+    # Customer configuration
+    CUSTOMER_EMAIL = os.getenv('CUSTOMER_EMAIL')
+    CUSTOMER_PASSWORD = os.getenv('CUSTOMER_PASSWORD')
+    
+    # Review configuration
+    REVIEW_EMAIL = os.getenv('REVIEW_EMAIL')
+    REVIEW_PASSWORD = os.getenv('REVIEW_PASSWORD')
+    
     # File upload configuration
     UPLOAD_FOLDER = os.path.join('app', 'uploads')
     SOURCE_FOLDER = os.path.join('data', 'source')

@@ -12,9 +12,11 @@ from functools import wraps
 import re
 import sys
 import secrets
-from .config import Config
+from app.config import Config
 from .models.user import db, User
 from .auth.routes import auth
+from .admin.routes import admin
+from .customer.routes import customer
 
 # Security headers
 def security_headers(response: Response) -> Response:
@@ -115,11 +117,19 @@ login_manager.login_message = 'Please log in to access MessagePilot.'
 login_manager.login_message_category = 'info'
 
 @login_manager.user_loader
-def load_user(id):
-    return User.query.get(int(id))
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
+# Track customer login time
+@app.before_request
+def track_customer_login():
+    if current_user.is_authenticated and not current_user.is_admin:
+        app.config['CUSTOMER_LOGIN_TIME'] = datetime.utcnow().isoformat()
 
 # Register blueprints
-app.register_blueprint(auth, url_prefix='/auth')
+app.register_blueprint(auth)
+app.register_blueprint(admin, url_prefix='/admin')
+app.register_blueprint(customer, url_prefix='/customer')
 
 # Apply security headers to all responses
 app.after_request(security_headers)
@@ -127,6 +137,11 @@ app.after_request(security_headers)
 # Create database tables
 with app.app_context():
     db.create_all()
+
+# Add template context processor for datetime
+@app.context_processor
+def inject_now():
+    return {'now': datetime.now()}
 
 # Protect all routes with login_required
 @app.before_request
@@ -149,7 +164,11 @@ def require_login():
 @app.route('/')
 @login_required
 def index():
-    """Render the homepage"""
+    if current_user.is_authenticated:
+        if current_user.is_admin:
+            return redirect(url_for('admin.dashboard'))
+        else:
+            return redirect(url_for('customer.dashboard'))
     return render_template('index.html')
 
 @app.route('/whatsapp')

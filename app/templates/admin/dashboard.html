@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+    <header class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">Admin Dashboard</h1>
+        <p class="text-gray-600">Manage your MessagePilot instance</p>
+    </header>
+
+    <div class="grid md:grid-cols-3 gap-6">
+        <!-- System Status -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">System Status</h2>
+            <div class="space-y-4">
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-600">WhatsApp Service</span>
+                    <span class="px-2 py-1 text-sm rounded-full bg-green-100 text-green-800">Active</span>
+                </div>
+                {% if 'sms.index' in config.get('ENABLED_ROUTES', []) %}
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-600">SMS Service</span>
+                    <span class="px-2 py-1 text-sm rounded-full bg-green-100 text-green-800">Active</span>
+                </div>
+                {% endif %}
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-600">Database</span>
+                    <span class="px-2 py-1 text-sm rounded-full bg-green-100 text-green-800">Connected</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">Quick Stats</h2>
+            <div class="space-y-4">
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-600">Total Users</span>
+                    <span class="font-semibold">{{ total_users }}</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-600">Messages Today</span>
+                    <span class="font-semibold">{{ messages_today }}</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-600">Active Sessions</span>
+                    <span class="font-semibold">{{ active_sessions }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">Quick Actions</h2>
+            <div class="space-y-3">
+                <a href="{{ url_for('admin.users') }}" class="block w-full text-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white sgp-green hover:sgp-green-hover">
+                    Manage Users
+                </a>
+                <a href="{{ url_for('admin.settings') }}" class="block w-full text-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                    System Settings
+                </a>
+                <a href="{{ url_for('admin.logs') }}" class="block w-full text-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                    View Logs
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="mt-8">
+        <h2 class="text-2xl font-semibold text-gray-900 mb-6">Recent Activity</h2>
+        <div class="bg-white shadow overflow-hidden sm:rounded-md">
+            <ul class="divide-y divide-gray-200">
+                {% for activity in recent_activities %}
+                <li class="px-6 py-4">
+                    <div class="flex items-center">
+                        <div class="min-w-0 flex-1">
+                            <p class="text-sm font-medium text-gray-900 truncate">
+                                {{ activity.description }}
+                            </p>
+                            <p class="text-sm text-gray-500">
+                                {{ activity.timestamp }}
+                            </p>
+                        </div>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %} 

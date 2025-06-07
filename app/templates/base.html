@@ -16,11 +16,109 @@
         .sgp-green-hover:hover {
             background-color: #1a4d35;
         }
+        .platform-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .platform-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .platform-card.available {
+            border: 2px solid #10b981;
+        }
+        .platform-card.coming-soon {
+            border: 2px solid #d1d5db;
+            opacity: 0.7;
+        }
+        .platform-card.coming-soon:hover {
+            transform: none;
+            cursor: not-allowed;
+        }
     </style>
     {% block extra_head %}{% endblock %}
 </head>
-<body class="bg-gray-100 min-h-screen flex flex-col">
-    {% block content %}{% endblock %}
+<body class="bg-gray-100 min-h-screen">
+    <!-- Navigation Bar -->
+    <nav class="bg-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex">
+                    <div class="flex-shrink-0 flex items-center">
+                        <h1 class="text-2xl font-bold sgp-green-text">MessagePilot</h1>
+                        <p class="text-sm text-gray-600 ml-2">by SGP Digital Solutions</p>
+                    </div>
+                    <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+                        <a href="{{ url_for('index') }}" class="{% if request.endpoint == 'index' %}border-green-500 text-gray-900{% else %}border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700{% endif %} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            Home
+                        </a>
+                        {% if current_user.is_authenticated and not current_user.is_admin %}
+                        <a href="{{ url_for('customer.whatsapp') }}" class="{% if request.endpoint == 'customer.whatsapp' %}border-green-500 text-gray-900{% else %}border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700{% endif %} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            WhatsApp
+                        </a>
+                        <a href="{{ url_for('customer.sms') }}" class="{% if request.endpoint == 'customer.sms' %}border-green-500 text-gray-900{% else %}border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700{% endif %} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            SMS
+                        </a>
+                        {% endif %}
+                        {% if current_user.is_authenticated and current_user.is_admin %}
+                        <a href="{{ url_for('whatsapp') }}" class="{% if request.endpoint == 'whatsapp' %}border-green-500 text-gray-900{% else %}border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700{% endif %} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            WhatsApp
+                        </a>
+                        {% if 'sms.index' in config.get('ENABLED_ROUTES', []) %}
+                        <a href="{{ url_for('sms.index') }}" class="{% if request.endpoint == 'sms.index' %}border-green-500 text-gray-900{% else %}border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700{% endif %} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            SMS
+                        </a>
+                        {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="hidden sm:ml-6 sm:flex sm:items-center">
+                    <div class="ml-3 relative">
+                        <div class="flex items-center">
+                            {% if current_user.is_authenticated %}
+                                <span class="text-sm text-gray-700 mr-4">Welcome, {{ current_user.first_name }}</span>
+                                <a href="{{ url_for('auth.profile') }}" class="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium">Profile</a>
+                                <a href="{{ url_for('auth.logout') }}" class="sgp-green text-white hover:sgp-green-hover px-3 py-2 rounded-md text-sm font-medium">Logout</a>
+                            {% else %}
+                                <a href="{{ url_for('auth.login') }}" class="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium">Login</a>
+                                <a href="{{ url_for('auth.register') }}" class="sgp-green text-white hover:sgp-green-hover px-3 py-2 rounded-md text-sm font-medium">Register</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-4 py-8">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="rounded-md p-4 mb-4 {% if category == 'error' %}bg-red-50 text-red-700{% else %}bg-green-50 text-green-700{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        {% block content %}{% endblock %}
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white shadow-lg mt-auto">
+        <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center">
+                <p class="text-center text-sm text-gray-600">
+                    &copy; {{ now.year }} SGP Digital Solutions. All rights reserved.
+                </p>
+                <div class="space-x-4">
+                    <a href="{{ url_for('privacy') }}" class="text-gray-500 hover:text-gray-700 text-sm">Privacy Policy</a>
+                    <a href="{{ url_for('terms') }}" class="text-gray-500 hover:text-gray-700 text-sm">Terms of Service</a>
+                </div>
+            </div>
+        </div>
+    </footer>
     
     {% block scripts %}{% endblock %}
 </body>

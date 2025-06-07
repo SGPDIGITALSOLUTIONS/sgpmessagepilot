@@ -1,0 +1,6 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+use this cd app; python -m flask run when being asked to run locally
